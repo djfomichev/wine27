@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Белый мыс · Карта года 2027</title><meta name="description" content="Рабочая карта программы Белого мыса: весь 2027 год, подробности каждого месяца, события и праздничные выходные."><link rel="stylesheet" href="style.css"></head>
+<body>
+<header class="topbar"><a class="brand" href="#load" aria-label="Белый мыс, карта года"><img src="logo.svg" alt="Белый мыс"></a><span class="workspace-name">Программа города</span><span class="draft">Рабочая карта · на основе v9</span><button id="infoBtn" class="iconbtn" aria-label="Об этой карте">i</button><button id="printBtn" class="plain desktop">Печать</button><button id="fullBtn" class="plain desktop">На весь экран</button></header>
+<main>
+<section class="mast"><div class="heading"><h1>Карта года <span>2027</span></h1><p id="subtitle">Программа, постоянная работа и команда</p></div><nav class="views" aria-label="Вид календаря"><button data-view="load" class="active">Нагрузка года</button><button data-view="year">Календарь</button><button data-view="month">Месяц</button><button data-view="projects">Проекты</button></nav><button id="issuesBtn" class="issues-btn"><span class="issue-dot"></span>На внимание <b id="issueCount"></b></button></section>
+<section class="controls" aria-label="Фильтры"><div class="filters" id="filters"></div><label class="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6"></circle><path d="m15 15 5 5"></path></svg><input id="search" type="search" placeholder="Найти событие или проект" aria-label="Найти событие или проект"></label><button id="reset" class="plain" hidden>Сбросить</button></section>
+<section id="loadView" aria-label="Нагрузка проекта по месяцам"></section><section id="loadMonthView" hidden></section>
+<section id="yearView" aria-label="Все 12 месяцев 2027 года"><div class="year-grid" id="yearGrid"></div></section>
+<section id="monthView" hidden><div class="month-toolbar"><div class="month-switch"><button id="prevMonth" class="iconbtn" aria-label="Предыдущий месяц">‹</button><h2 id="monthTitle"></h2><button id="nextMonth" class="iconbtn" aria-label="Следующий месяц">›</button><select id="monthSelect" aria-label="Выбрать месяц"></select></div><button class="plain" id="backYear">Вернуться к году</button></div><div class="month-layout"><div class="calendar-wrap"><div class="weekdays"><span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span></div><div id="monthGrid" class="month-grid"></div></div><aside id="monthAside"></aside></div></section>
+<section id="projectsView" hidden><div class="projects-intro"><h2>Проекты и постоянная программа</h2><p>Открытия без точного срока и события, которые сопровождают весь год. Даты появятся после согласования.</p></div><div id="projectGrid" class="project-grid"></div></section>
+<footer><div class="legend"><span><i class="legend-holiday"></i>Праздничные выходные</span><span><i class="legend-proposal"></i>Предварительная дата</span><span><i class="legend-plan"></i>Дата в плане</span></div><span id="footerNote">Выберите месяц, чтобы увидеть дни и подробности</span></footer>
+</main>
+<dialog id="detailDialog"><button class="dialog-close iconbtn" aria-label="Закрыть">×</button><div id="detailContent"></div></dialog>
+<div id="toast" role="status" aria-live="polite"></div>
+<script src="data.js"></script><script src="load.js"></script><script src="app.js"></script>
+</body></html>
