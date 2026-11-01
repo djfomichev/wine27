@@ -10,6 +10,7 @@ Before every published content or design change run:
     node --check app.js
     node --check load.js
     node --check auto-update.js
+    node scripts/check-calendar.cjs
 
 Commit index.html and site-version.json from this run together with changed assets. The stamp is derived from asset contents; rerunning without changes preserves the release ID. Pages deploys main automatically. Verify the public site-version.json matches the release ID before reporting a version live.
 
