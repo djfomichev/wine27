@@ -44,3 +44,10 @@ assert.equal(check('D.events.filter(matches).length'),8);assert.equal(check('D.p
 check('state.category="music";render()');assert.equal(check('D.events.filter(matches).length'),2);
 el('#reset').onclick();assert.equal(check('D.events.filter(matches).length'),35);
 console.log('PASS: disjoint counts in 12 months, workload row parity, Etudes once, August and partner windows, combined festival filters.');
+
+check('state.density="compact";setView("load")');assert.match(el('#loadView').innerHTML,/atlas-compact/);
+check('state.density="detail";render()');assert.match(el('#loadView').innerHTML,/atlas-detail/);
+assert.equal((el('#loadView').innerHTML.match(/<article class="overview-month/g)||[]).length,12);
+assert.match(fs.readFileSync('auto-update.js','utf8'),/density:state.density/);
+assert.match(fs.readFileSync('auto-update.js','utf8'),/state.density=ui.density/);
+console.log('PASS: both density modes retain 12 months; auto-update retains density.');
