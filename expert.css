@@ -172,3 +172,21 @@ body{font-size:16px;line-height:1.5}
 
 .prep-details,.weekly-program{border:1px solid var(--line);border-radius:16px;padding:20px}.prep-details>summary,.weekly-program>summary,.plan-decisions>summary{cursor:pointer;min-height:44px;font:18px/1.4 HaussWide}.prep-details>summary b,.plan-decisions>summary b{margin-left:12px}.weekly-program>summary{display:flex;align-items:center;justify-content:space-between;gap:20px}.weekly-program>summary span{font:14px Hauss}.weekly-program[open]>.section-heading{margin-bottom:20px}.month-focus{font-size:17px;line-height:1.6;max-width:100ch;margin:18px 0 24px}.plan-decisions{border:1px solid var(--wine);border-radius:16px;padding:20px;margin:0 0 26px}.plan-decisions section{border-top:1px solid var(--line);margin-top:20px;padding-top:18px}.plan-decisions h3{font-size:21px}.plan-decisions p{font-size:16px;line-height:1.5;max-width:90ch}.embedded-links{display:flex;flex-direction:column;gap:8px;margin:16px 0}.embedded-links button{display:flex;align-items:flex-start;gap:16px;width:100%;text-align:left;border:1px solid var(--line);border-radius:12px;background:var(--cream);padding:14px}.embedded-links b{font-size:14px;flex:0 0 130px}.embedded-links span{font:16px/1.4 HaussWide}.event-mini.tier-child{border-left:2px solid var(--mint)}.mobile-date-card.tier-child{border-left-color:var(--mint)}
 @media(max-width:760px){.prep-details,.weekly-program,.plan-decisions{padding:18px}.weekly-program>summary{flex-direction:column;align-items:flex-start;gap:10px}.weekly-program>summary span{font-size:14px}.prep-details>summary,.plan-decisions>summary{font-size:18px}.month-focus{font-size:16px}.embedded-links button{flex-direction:column;gap:8px}.embedded-links b{flex:auto}.embedded-links span{font-size:17px}}
+
+/* Compact navigation and one heading per section. */
+.release-actions{display:flex;align-items:center;justify-content:flex-end;gap:12px;flex-wrap:wrap}
+.release-note .plan-entry{width:auto;min-height:44px;margin:0;padding:10px 16px;border-radius:10px;background:var(--green);color:#fff;font:15px HaussWide;gap:12px;flex-direction:row;align-items:center}
+.release-note .plan-entry[hidden]{display:none}
+.views button{min-height:66px}
+.plan-heading{align-items:center;margin:6px 0 24px}
+.project-working-plan>summary{font:21px/1.35 HaussWide;cursor:pointer;min-height:44px;display:list-item}
+.project-working-plan[open]>summary{margin-bottom:20px}
+.detail-source details{margin:12px 0}.detail-source summary{cursor:pointer;min-height:40px;font:15px/1.5 HaussWide}
+.overview-format{display:block;margin-top:7px;font:12px/1.3 Hauss;opacity:.9}
+.format-badge{display:block;width:fit-content;margin-top:7px;font:11px/1.3 Hauss;border:1px solid currentColor;border-radius:4px;padding:3px 6px}
+.detail-meta .format-badge,.plan-card-meta .format-badge{margin:0;font-size:13px}
+.peak-month .season-highlight .atlas-event{background:var(--wine);color:#fff;border-color:var(--wine);margin-top:8px}
+.season-highlight .atlas-date{color:inherit}
+.plan-card.tier-major{border-top-color:var(--wine)}.plan-card.is-festival{border-top-color:var(--yellow)}
+.overview-bottom{justify-content:flex-end}.overview-intro .map-caption p:empty{display:none}
+@media(max-width:760px){.release-note{align-items:center;flex-wrap:wrap}.release-actions{gap:8px}.release-note .plan-entry{font-size:14px;padding:10px 12px}.views button{min-height:64px}.plan-heading{align-items:stretch}.project-working-plan>summary{font-size:22px}.overview-format{font-size:13px}.format-badge{font-size:12px}.atlas-compact .overview-format{font-size:11px}}

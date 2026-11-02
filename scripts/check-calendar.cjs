@@ -3,7 +3,7 @@ const elements=new Map();function el(s){if(!elements.has(s))elements.set(s,{inne
 const handlers={};const ctx={window:{addEventListener(){},scrollTo(){}},document:{querySelector:el,querySelectorAll:()=>[],addEventListener:(k,f)=>(handlers[k]??=[]).push(f),createElement:()=>({click(){}})},localStorage:{getItem(){return null},setItem(){}},location:{hash:''},setTimeout:()=>{},URL,Blob,console};vm.createContext(ctx);
 for(const p of ['data','expert-data','planning-data','load','expert','plan','app'])vm.runInContext(fs.readFileSync(p+'.js','utf8'),ctx);
 function check(code){return vm.runInContext(code,ctx)}
-assert.equal(check('state.view'),'load');assert.equal(check('state.density'),'detail');assert.match(el('#loadView').innerHTML,/Год работы команды/);assert.equal((el('#loadView').innerHTML.match(/<article[^>]*class="overview-month/g)||[]).length,12);
+assert.equal(check('state.view'),'load');assert.equal(check('state.density'),'detail');assert.match(el('#loadView').innerHTML,/Карта года/);assert.equal((el('#loadView').innerHTML.match(/<article[^>]*class="overview-month/g)||[]).length,12);
 assert.equal(check('D.events.length'),34);assert.equal(check('D.projects.length'),58);assert.equal(check('D.holidays.length'),8);
 assert.equal(check('activeLoad(7).length'),16);assert.equal(check('loadEvents(7,"major").length'),3);
 assert.equal(check('defaultUnits(LOAD.recurring.find(r=>r.id==="radio"),7)'),31);
@@ -17,7 +17,7 @@ check('loadScenario.rows["7:regular:radio"].prep=""');assert.equal(check('loadSt
 check('loadScenario.rows["7:regular:radio"]={n:0,people:0,hours:0,prep:0}');assert.equal(check('loadStats(7).done'),1);assert.equal(check('loadStats(7).total'),0);
 check('loadScenario.extra.push({id:"extra:test",title:"Букинг Винной недели",month:6,category:"city"});loadScenario.rows["6:extra:test"]={n:0,people:0,hours:0,prep:100}');assert.equal(check('loadStats(6).total'),100);assert.equal(check('loadStats(9).total'),0);
 check('loadScenario={rows:{},capacity:{},extra:[]}');
-for(let i=0;i<12;i++){check(`setView('loadMonth',${i})`);assert.match(el('#loadMonthView').innerHTML,/Постоянная работа месяца/);assert.match(el('#loadMonthView').innerHTML,/Сценарий команды/);check(`setView('month',${i})`);assert.match(el('#monthGrid').innerHTML,/day-number/)}
+for(let i=0;i<12;i++){check(`setView('loadMonth',${i})`);assert.match(el('#loadMonthView').innerHTML,/Постоянная работа месяца/);assert.match(el('#loadMonthView').innerHTML,/Рассчитать команду/);check(`setView('month',${i})`);assert.match(el('#monthGrid').innerHTML,/day-number/)}
 check('location.hash="#load-month-8";readHash()');assert.equal(check('state.view'),'loadMonth');assert.equal(check('state.month'),7);
 check('state.query="радио";renderLoad()');assert.equal(check('activeLoad(7).length'),1);assert.equal(check('loadEvents(7,"major").length'),0);assert.match(el('#loadView').innerHTML,/Радио/);
 check('state.query="";setView("year")');assert.match(el('#yearGrid').innerHTML,/Большой август/);
@@ -109,7 +109,7 @@ clickData({expertMonth:'5'});assert.equal(check('state.view'),'expert');assert.e
 clickData({expertAll:'1'});assert.equal(check('state.expertMonth'),null);
 clickData({expertTrack:'recognition'});assert.equal((el('#expertView').innerHTML.match(/class="expert-row"/g)||[]).length,1);
 clickData({changes:'1'});assert.match(el('#detailContent').innerHTML,/Что изменилось на карте/);
-assert.equal((el('#detailContent').innerHTML.match(/<section>/g)||[]).length,10);
+assert.equal((el('#detailContent').innerHTML.match(/<section>/g)||[]).length,check('D.revisionChanges.length'));
 clickData({themeMonth:'7'});assert.match(el('#detailContent').innerHTML,/Август 2027/);
 clickData({openMonth:'7'});assert.equal(check('state.view'),'month');assert.equal(check('state.month'),7);
 check('location.hash="#expert";readHash()');assert.equal(check('state.view'),'expert');
@@ -149,8 +149,8 @@ console.log('PASS: large default, 12 month jump targets, mobile navigation label
 
 // The full production plan is separate from confirmed dates and does not invent openings.
 check('state.query="";state.category="all";state.festivalsOnly=false;state.planMonth=null;setView("plan")');
-assert.match(el('#planView').innerHTML,/Полный рабочий план/);
-assert.equal((el('#planView').innerHTML.match(/class="plan-card(?: is-festival)?"/g)||[]).length,100);
+assert.match(el('#planView').innerHTML,/Рабочий план/);
+assert.equal((el('#planView').innerHTML.match(/class="plan-card tier-[^" ]+(?: is-festival)?"/g)||[]).length,100);
 assert.equal(check('calendarItems().length'),79);
 assert.equal(check('D.embedded.length'),8);
 assert.equal(check('new Set(calendarItems().map(e=>e.id)).size'),check('calendarItems().length'));
@@ -168,3 +168,20 @@ check('showRhythm("cabaret")');assert.match(el('#detailContent').innerHTML,/26 �
 clickData({planMonth:'7'});assert.equal(check('state.view'),'plan');assert.equal(check('state.planMonth'),7);assert.match(el('#planView').innerHTML,/Большой август/);
 check('location.hash="#plan";readHash()');assert.equal(check('state.view'),'plan');
 console.log('PASS: all original projects scheduled or assigned preparation, no invented openings, readable cross-year dates, embedded programs and regular slots counted once.');
+
+// Large annual events must remain visible, without turning nested programs into extra production.
+check('state.category="all";state.query="";state.festivalsOnly=false;setView("load")');
+for(const id of ['craft','love','march8','barin','books','anatoliy','italian-sunday']){
+ assert.equal(check(`loadEventType(planningItem('${id}'))`),'major',id);
+ assert.match(el('#loadView').innerHTML,new RegExp('data-event="'+id+'"'),id+' is hidden on the year map');
+}
+for(const id of check('[...D.events,...D.projects].filter(isFestival).map(e=>e.id)'))assert.equal(check(`loadEventType(planningItem('${id}'))`),'major',id);
+assert.match(el('#loadView').innerHTML,/data-event="embedded-bar_music_weekend"/);
+assert.equal(check('displayTier(planningItem("embedded-bar_music_weekend"))'),'major');
+assert.equal(check('loadRows(7).some(e=>e.source==="embedded-bar_music_weekend")'),false);
+for(const id of ['project-19','exhibition','exhibition-nov'])assert.equal(check(`planningItem('${id}').title`),'Выставка современного искусства');
+check('setView("plan")');assert.equal(el('#planEntry').hidden,true);
+assert.equal((el('#planView').innerHTML.match(/<h2>/g)||[]).length,1);
+assert.doesNotMatch(el('#planView').innerHTML,/Здесь собрана вся программа|plan-principles/);
+check('setView("load")');assert.equal(el('#planEntry').hidden,false);
+console.log('PASS: large weekends and festivals stay visible, nested bar weekend counted once, exhibition names and single plan heading.');
