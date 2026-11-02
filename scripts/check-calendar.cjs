@@ -149,7 +149,7 @@ console.log('PASS: large default, 12 month jump targets, mobile navigation label
 check('state.query="";state.category="all";state.festivalsOnly=false;state.planMonth=null;setView("plan")');
 assert.match(el('#planView').innerHTML,/Рабочий план/);
 assert.equal((el('#planView').innerHTML.match(/class="plan-card tier-[^" ]+(?: is-festival)?"/g)||[]).length,102);
-assert.equal(check('calendarItems().length'),83);
+assert.equal(check('calendarItems().length'),87);
 assert.equal(check('D.embedded.length'),11);
 assert.equal(check('new Set(calendarItems().map(e=>e.id)).size'),check('calendarItems().length'));
 for(const id of check('[...D.events,...D.projects].map(e=>e.id)'))assert(check(`!!planningItem('${id}').start||preparationFor('${id}').length>0||recurringFor('${id}').length>0`),'No date, preparation or rhythm for '+id);
@@ -221,3 +221,37 @@ assert.doesNotMatch(html,/data-changes|Что изменилось|На вним
 assert.match(html,/На согласовании/);
 for(const name of ['data.js','expert-data.js','planning-data.js','expert.js'])assert.doesNotMatch(fs.readFileSync(name,'utf8'),/ХУРМ|Хурм/);
 console.log('PASS: theme prominence, July/August balance, award finale, resolved dates, HURMA and approvals label.');
+
+// Summer jazz occupies free days, favours weekends and never duplicates festival production.
+const summerJazz=check('P.recurring.find(r=>r.id==="jazz").periods.filter(p=>p.start<="2027-08-31"&&p.end>="2027-07-01")');
+const summerMajor=check('[...D.events,...D.embedded].filter(e=>e.scale==="major"&&e.start<="2027-08-31"&&e.end>="2027-07-01")');
+let weekendDays=0,weekdayDays=0;const jazzDays=new Set();
+for(const p of summerJazz){
+ for(let day=new Date(p.start+'T12:00:00Z');day.toISOString().slice(0,10)<=p.end;day.setUTCDate(day.getUTCDate()+1)){
+  const date=day.toISOString().slice(0,10),weekday=day.getUTCDay();
+  assert.notEqual(weekday,1,'No Monday jazz: '+date);
+  assert(!jazzDays.has(date),'Duplicate jazz day: '+date);jazzDays.add(date);
+  assert(!summerMajor.some(e=>e.start<=date&&e.end>=date),'Jazz overlaps a major event: '+date);
+  if([0,6].includes(weekday))weekendDays++;else weekdayDays++;
+ }
+ const id='slot-jazz-'+p.start;
+ assert(check(`calendarItems().some(e=>e.id===${JSON.stringify(id)})`),'Missing calendar residency '+id);
+ assert.equal(check(`planningItem(${JSON.stringify(id)}).status`),'proposed');
+ assert.equal(check(`planningItem(${JSON.stringify(id)}).parentId`),'project-68');
+}
+assert(weekendDays>weekdayDays&&weekdayDays>0,'Weekend priority and additional weekday concerts');
+assert.equal(check('planningItem("slot-jazz-2027-07-23")'),undefined);
+assert.equal(check('planningItem("slot-jazz-2027-08-13")'),undefined);
+assert.equal(check('monthEvents(7).some(e=>e.id==="slot-jazz-2027-07-31")'),true,'Cross-month residency visible in August');
+check('showEvent("slot-jazz-2027-07-14")');assert.match(el('#detailContent').innerHTML,/Среда 20:00/);assert.match(el('#detailContent').innerHTML,/Клуб Алексея Козлова/);
+console.log('PASS: summer jazz uses free days, excludes Mondays, prioritises weekends and preserves proposed bookings.');
+
+// The published program states the current plan without editorial change history.
+const editorialHistory=/предлагаем(?:ый|ого)? перенос|предлагается перенести|по решению Димы|из v10|в старом календаре|сохран[её]н[аы]? из|прежн(?:ий|яя|ее|ие) предлож/i;
+check('showEvent("august")');assert.doesNotMatch(el('#detailContent').innerHTML,/Резонанс|Голицынские/);
+for(const id of check('[...D.events,...D.projects,...D.embedded,...D.scheduledSlots].map(e=>e.id)')){
+ check(`showEvent(${JSON.stringify(id)})`);assert.doesNotMatch(el('#detailContent').innerHTML,editorialHistory,id);
+}
+for(const m of check('D.months'))assert.doesNotMatch(m.themeDetail,editorialHistory,m.name);
+assert(check('D.events.find(e=>e.id==="resonance").previousDateRange.start==="2027-08-28"'),'Preserve provenance outside published copy');
+console.log('PASS: current management copy has no editorial history; original scheduling provenance is retained.');
