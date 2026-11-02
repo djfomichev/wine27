@@ -4,8 +4,8 @@ const handlers={};const ctx={window:{addEventListener(){},scrollTo(){}},document
 for(const p of ['data','expert-data','planning-data','load','expert','plan','app'])vm.runInContext(fs.readFileSync(p+'.js','utf8'),ctx);
 function check(code){return vm.runInContext(code,ctx)}
 assert.equal(check('state.view'),'load');assert.equal(check('state.density'),'detail');assert.match(el('#loadView').innerHTML,/Карта года/);assert.equal((el('#loadView').innerHTML.match(/<article[^>]*class="overview-month/g)||[]).length,12);
-assert.equal(check('D.events.length'),34);assert.equal(check('D.projects.length'),58);assert.equal(check('D.holidays.length'),8);
-assert.equal(check('activeLoad(7).length'),16);assert.equal(check('loadEvents(7,"major").length'),3);
+assert.equal(check('D.events.length'),33);assert.equal(check('D.projects.length'),58);assert.equal(check('D.holidays.length'),8);
+assert.equal(check('activeLoad(7).length'),16);assert.equal(check('loadEvents(7,"major").length'),1);
 assert.equal(check('defaultUnits(LOAD.recurring.find(r=>r.id==="radio"),7)'),31);
 assert.equal(check('defaultUnits(LOAD.recurring.find(r=>r.id==="radio"),0)'),10);
 assert.equal(check('loadRows(7).some(r=>r.id==="event:august")'),false);
@@ -26,7 +26,7 @@ check('showEvent("project-67")');assert.match(el('#detailContent').innerHTML,/Pe
 for(const r of check('LOAD.recurring')){assert(check(`D.projects.some(p=>p.id===${JSON.stringify(r.source)})`),r.source)}
 console.log('PASS: source preservation, 12-month rendering, August programs, no double counting, monthly preparation, complete/partial/zero calculations, filters and source cards.');
 
-assert.equal(check('D.events.some(e=>e.id==="conference")'),false);assert.equal(check('D.issues.length'),16);
+assert.equal(check('D.events.some(e=>e.id==="conference")'),false);assert.equal(check('D.issues.length'),8);
 
 check('state.query="";setView("loadMonth",7)');assert.match(el("#loadMonthView").innerHTML,/<details class="team-planner">/);assert.equal(check('activeLoad(7).length'),16);
 check('state.query="";state.category="all";state.festivalsOnly=false');
@@ -38,11 +38,11 @@ for(let m=0;m<12;m++){
 check('setView("load")');
 assert.equal((el('#loadView').innerHTML.match(/data-event="project-58"/g)||[]).length,1);
 assert.match(el('#loadView').innerHTML,/Большой август/);assert.match(el('#loadView').innerHTML,/Партнёрское окно/);
-assert.equal(check('overviewGroups(7).festivals.length'),2);assert.equal(check('overviewGroups(7).major.length'),1);
+assert.equal(check('overviewGroups(7).festivals.length'),1);assert.equal(check('overviewGroups(7).major.length'),0);
 check('state.festivalsOnly=true;setView("load")');assert.doesNotMatch(el('#loadView').innerHTML,/class="overview-regular"/);
 assert.equal(check('D.events.filter(matches).length'),8);assert.equal(check('D.projects.filter(matches).length'),2);
 check('state.category="music";render()');assert.equal(check('D.events.filter(matches).length'),2);
-el('#reset').onclick();assert.equal(check('D.events.filter(matches).length'),34);
+el('#reset').onclick();assert.equal(check('D.events.filter(matches).length'),33);
 console.log('PASS: disjoint counts in 12 months, workload row parity, Etudes once, August and partner windows, combined festival filters.');
 
 check('state.density="compact";setView("load")');assert.match(el('#loadView').innerHTML,/atlas-compact/);
@@ -53,7 +53,7 @@ assert.match(fs.readFileSync('auto-update.js','utf8'),/state.density=ui.readabil
 console.log('PASS: both density modes retain 12 months; auto-update retains density.');
 
 // v10 preserves every existing project while adding the professional program.
-const preservedIds=["anatoliy", "anchovy", "august", "award", "barin", "birthday", "blacksea", "books", "christmas", "craft", "dozen", "exhibition", "fire-grape", "flagman-weekend", "golitsyn", "italian-sunday", "love", "march8", "may", "newyear-dec", "newyear-jan", "orchestras", "paradiz", "partner-apr", "partner-dec", "partner-feb", "partner-mar", "project-10", "project-11", "project-12", "project-13", "project-14", "project-15", "project-16", "project-17", "project-18", "project-19", "project-2", "project-20", "project-21", "project-22", "project-23", "project-24", "project-25", "project-26", "project-27", "project-28", "project-29", "project-3", "project-4", "project-5", "project-58", "project-6", "project-67", "project-68", "project-69", "project-7", "project-70", "project-71", "project-72", "project-8", "project-9", "resonance", "sail", "shtil", "south-table", "terroir", "velvet", "wine-families", "wineweek"];
+const preservedIds=["anatoliy", "anchovy", "august", "award", "barin", "birthday", "blacksea", "books", "christmas", "craft", "dozen", "exhibition", "fire-grape", "flagman-weekend", "golitsyn", "italian-sunday", "love", "march8", "may", "newyear-dec", "newyear-jan", "orchestras", "paradiz", "partner-apr", "partner-dec", "partner-mar", "project-10", "project-11", "project-12", "project-13", "project-14", "project-15", "project-16", "project-17", "project-18", "project-19", "project-2", "project-20", "project-21", "project-22", "project-23", "project-24", "project-25", "project-26", "project-27", "project-28", "project-29", "project-3", "project-4", "project-5", "project-58", "project-6", "project-67", "project-68", "project-69", "project-7", "project-70", "project-71", "project-72", "project-8", "project-9", "resonance", "sail", "shtil", "south-table", "terroir", "velvet", "wine-families", "wineweek"];
 
 const allIds=check('[...D.events,...D.projects].map(p=>p.id)');
 assert.equal(allIds.length,new Set(allIds).size);
@@ -75,7 +75,7 @@ assert.equal(check('expertById.get("award").concept_status'),'approved_existing_
 assert.equal(check('D.events.filter(p=>p.id==="award").length'),1);
 assert.equal(check('D.projects.some(p=>p.id==="award")'),false);
 assert.equal(check('D.months.every(m=>m.themeDetail.length>100&&m.expertWork.length>40)'),true);
-assert.equal(check('D.events.filter(p=>p.category==="partner"&&p.candidateLabel&&p.status==="proposed").length'),4);
+assert.equal(check('D.events.filter(p=>p.category==="partner"&&p.candidateLabel&&p.status==="proposed").length'),3);
 assert.match(check('D.sources[0].title'),/v10: 79/);
 assert.match(check('D.sources.find(s=>s.title.startsWith("Погодная")).title'),/слайд 38/);
 check('state.category="all";state.query="";state.festivalsOnly=false');
@@ -100,7 +100,7 @@ check('state.expertMonth=null;state.query="dropreaders";render()');
 assert.equal((el('#expertView').innerHTML.match(/class="expert-row"/g)||[]).length,2);
 assert.match(el('#expertView').innerHTML,/data-expert="exp_dropreaders"/);
 check('state.query="";showExpert("award")');
-assert.match(el('#detailContent').innerHTML,/Премия входит в Винную неделю/);
+assert.match(el('#detailContent').innerHTML,/Большой финал Винной недели/);
 assert.doesNotMatch(el('#detailContent').innerHTML,/существующий ID/);
 check('showExpert("exp_sparkling_session")');
 assert.match(el('#detailContent').innerHTML,/первый год|Первый год/);
@@ -108,8 +108,6 @@ function clickData(dataset){const b={dataset,closest(){return b}};for(const h of
 clickData({expertMonth:'5'});assert.equal(check('state.view'),'expert');assert.equal(check('state.expertMonth'),5);
 clickData({expertAll:'1'});assert.equal(check('state.expertMonth'),null);
 clickData({expertTrack:'recognition'});assert.equal((el('#expertView').innerHTML.match(/class="expert-row"/g)||[]).length,1);
-clickData({changes:'1'});assert.match(el('#detailContent').innerHTML,/Что изменилось на карте/);
-assert.equal((el('#detailContent').innerHTML.match(/<section>/g)||[]).length,check('D.revisionChanges.length'));
 clickData({themeMonth:'7'});assert.match(el('#detailContent').innerHTML,/Август 2027/);
 clickData({openMonth:'7'});assert.equal(check('state.view'),'month');assert.equal(check('state.month'),7);
 check('location.hash="#expert";readHash()');assert.equal(check('state.view'),'expert');
@@ -150,9 +148,9 @@ console.log('PASS: large default, 12 month jump targets, mobile navigation label
 // The full production plan is separate from confirmed dates and does not invent openings.
 check('state.query="";state.category="all";state.festivalsOnly=false;state.planMonth=null;setView("plan")');
 assert.match(el('#planView').innerHTML,/Рабочий план/);
-assert.equal((el('#planView').innerHTML.match(/class="plan-card tier-[^" ]+(?: is-festival)?"/g)||[]).length,100);
-assert.equal(check('calendarItems().length'),79);
-assert.equal(check('D.embedded.length'),8);
+assert.equal((el('#planView').innerHTML.match(/class="plan-card tier-[^" ]+(?: is-festival)?"/g)||[]).length,102);
+assert.equal(check('calendarItems().length'),83);
+assert.equal(check('D.embedded.length'),11);
 assert.equal(check('new Set(calendarItems().map(e=>e.id)).size'),check('calendarItems().length'));
 for(const id of check('[...D.events,...D.projects].map(e=>e.id)'))assert(check(`!!planningItem('${id}').start||preparationFor('${id}').length>0||recurringFor('${id}').length>0`),'No date, preparation or rhythm for '+id);
 for(const id of ['project-2','project-3','project-5','project-6','project-7','project-8','project-9'])assert.equal(check(`!!planningItem('${id}').start`),false,'Readiness is not an opening date');
@@ -185,3 +183,41 @@ assert.equal((el('#planView').innerHTML.match(/<h2>/g)||[]).length,1);
 assert.doesNotMatch(el('#planView').innerHTML,/Здесь собрана вся программа|plan-principles/);
 check('setView("load")');assert.equal(el('#planEntry').hidden,false);
 console.log('PASS: large weekends and festivals stay visible, nested bar weekend counted once, exhibition names and single plan heading.');
+
+// Current user decisions: themes, redistributed peaks and resolved calendar questions.
+check('state.category="all";state.query="";state.festivalsOnly=false;setView("load")');
+for(const density of ['detail','compact']){
+ check(`state.density='${density}';renderLoad()`);
+ assert.equal((el('#loadView').innerHTML.match(/class="month-theme-card"/g)||[]).length,12);
+ assert.match(el('#loadView').innerHTML,/data-event="award"/);
+ assert.match(el('#loadView').innerHTML,/data-event="embedded-bar_july_party"/);
+}
+check('setView("year")');assert.equal((el('#yearGrid').innerHTML.match(/class="month-theme-card"/g)||[]).length,12);
+for(let m=0;m<12;m++){
+ check(`setView('loadMonth',${m})`);assert.equal((el('#loadMonthView').innerHTML.match(/data-theme-month=/g)||[]).length,1);
+ check(`setView('month',${m})`);assert.match(el('#monthTheme').innerHTML,/month-theme-hero/);assert.doesNotMatch(el('#monthAside').innerHTML,/data-theme-month=/);
+}
+assert.equal(check('planningItem("craft").formatLabel'),'Уикенд для мужчин');
+assert.equal(check('planningItem("resonance").start'),'2027-07-24');
+assert.equal(check('planningItem("golitsyn").start'),'2027-10-02');
+assert.equal(check('planningItem("resonance").status'),'proposed');
+assert.equal(check('planningItem("golitsyn").status'),'proposed');
+assert.equal(check('planningItem("embedded-bar_july_party").start'),'2027-07-17');
+assert.equal(check('planningItem("embedded-bar_music_weekend").start'),'2027-08-14');
+assert.equal(check('D.embedded.filter(e=>e.formatLabel==="Артисты из Москвы").length'),2);
+assert.equal(check('displayTier(planningItem("award"))'),'major');
+assert.equal(check('loadRows(9).some(e=>e.id==="event:award")'),false);
+assert.equal(check('planningItem("partner-feb")'),undefined);
+assert.equal(check('P.preparation.some(e=>e.projectIds.includes("partner-feb"))'),false);
+assert.equal(check('P.recurring.find(e=>e.id==="coffee_rave").periods[0].start'),'2027-02-01');
+assert.equal(check('P.recurring.find(e=>e.id==="anatoliy_meetings").periods[0].start'),'2027-01-24');
+assert.equal(check('planningItem("embedded-victory_day").start'),'2027-05-09');
+assert.equal(check('planningItem("embedded-victory_day").status'),'planned');
+assert.equal(check('planningItem("slot-june14_day-2027-06-14").status'),'planned');
+assert.equal(check('planningItem("embedded-blacksea_night").start'),'2027-10-30');
+assert.equal(check('planningItem("newyear-dec").end'),'2028-01-08');
+assert.equal(check('monthEvents(11).some(e=>e.id==="newyear-dec")'),true);
+assert.doesNotMatch(html,/data-changes|Что изменилось|На внимание/);
+assert.match(html,/На согласовании/);
+for(const name of ['data.js','expert-data.js','planning-data.js','expert.js'])assert.doesNotMatch(fs.readFileSync(name,'utf8'),/ХУРМ|Хурм/);
+console.log('PASS: theme prominence, July/August balance, award finale, resolved dates, HURMA and approvals label.');

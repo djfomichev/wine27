@@ -190,3 +190,35 @@ body{font-size:16px;line-height:1.5}
 .plan-card.tier-major{border-top-color:var(--wine)}.plan-card.is-festival{border-top-color:var(--yellow)}
 .overview-bottom{justify-content:flex-end}.overview-intro .map-caption p:empty{display:none}
 @media(max-width:760px){.release-note{align-items:center;flex-wrap:wrap}.release-actions{gap:8px}.release-note .plan-entry{font-size:14px;padding:10px 12px}.views button{min-height:64px}.plan-heading{align-items:stretch}.project-working-plan>summary{font-size:22px}.overview-format{font-size:13px}.format-badge{font-size:12px}.atlas-compact .overview-format{font-size:11px}}
+
+/* The month theme leads its whole program, including compact and phone views. */
+.month-theme-card{display:block;width:100%;min-width:0;margin:16px 0 22px;padding:17px 18px 20px;border:0;border-radius:10px;background:var(--green);color:#fff;text-align:left}
+.month-theme-caption{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;font:13px/1.3 Hauss;color:var(--mint)}
+.month-theme-open{font:24px/1 Hauss;color:inherit}
+.month-theme-card>b{display:block;font:700 24px/1.18 HaussWide;letter-spacing:-.35px;overflow-wrap:anywhere}
+.month-theme-card:focus-visible{outline:3px solid var(--wine);outline-offset:4px}
+.month-theme-card:hover{box-shadow:inset 0 0 0 2px var(--mint)}
+.peak-month .month-theme-card{background:var(--mint);color:var(--green)}
+.peak-month .month-theme-caption{color:var(--green)}
+.peak-month .month-theme-card:hover{box-shadow:inset 0 0 0 2px #fff}
+.peak-month .month-theme-card:focus-visible{outline-color:var(--yellow)}
+.atlas-compact .month-theme-card{display:block;margin:12px 0 18px;padding:12px 13px 15px}
+.atlas-compact .month-theme-caption{font-size:12px;margin-bottom:9px}
+.atlas-compact .month-theme-card>b{font-size:19px;letter-spacing:-.2px}
+.month-theme-hero{margin:6px 0 26px;padding:24px 30px 30px}
+.month-theme-hero .month-theme-caption{font-size:15px;margin-bottom:14px}
+.month-theme-hero>b{font-size:38px;max-width:34ch}
+.load-month-summary .wide-summary{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.wide-summary>span{font-size:16px;line-height:1.5}
+@media(max-width:760px){.month-theme-card{margin:16px 0 24px;padding:18px 18px 22px}.month-theme-card>b{font-size:25px}.month-theme-caption{font-size:14px}.month-theme-hero{margin:4px 0 24px;padding:23px 20px 28px}.month-theme-hero>b{font-size:31px}.atlas-compact .month-theme-card{padding:12px 10px 15px;margin:12px 0 16px}.atlas-compact .month-theme-card>b{font-size:17px;line-height:1.2}.atlas-compact .month-theme-caption{font-size:11px;gap:6px}.atlas-compact .month-theme-open{font-size:21px}}
+@media print{.month-theme-card,.atlas-compact .month-theme-card{display:block!important;padding:10px;margin:8px 0 12px;background:#fff;color:var(--green);border:2px solid var(--green);break-inside:avoid}.month-theme-caption,.peak-month .month-theme-caption{color:var(--green);font-size:10px;margin-bottom:7px}.month-theme-card>b,.atlas-compact .month-theme-card>b{font-size:16px}.month-theme-open{display:none}.month-theme-hero>b{font-size:26px}}
+
+.overview-program{min-width:0}
+.overview-finale{padding:10px 0 0 12px;border-left:3px solid var(--wine);margin:0 0 4px 10px}
+.overview-finale .atlas-event{background:var(--green);color:#fff;min-height:80px;padding:16px 12px}
+.overview-finale .atlas-event b{font-size:21px;line-height:1.2}
+.overview-finale .overview-format{font-size:13px;color:var(--mint)}
+.atlas-compact .overview-finale{padding-left:8px;margin-left:5px}
+.atlas-compact .overview-finale .atlas-event{padding:11px 9px;min-height:70px}
+.atlas-compact .overview-finale .atlas-event b{font-size:17px}
+@media(max-width:760px){.overview-finale .atlas-event b{font-size:23px}.atlas-compact .overview-finale{padding-left:5px;margin-left:3px}.atlas-compact .overview-finale .atlas-event b{font-size:16px}.atlas-compact .overview-finale .overview-format{font-size:11px}}
