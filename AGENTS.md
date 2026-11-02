@@ -9,9 +9,15 @@ Before every published content or design change run:
     python3 scripts/stamp-version.py
     node --check app.js
     node --check load.js
+    node --check expert.js
+    node --check expert-data.js
+    node --check plan.js
+    node --check planning-data.js
     node --check auto-update.js
     node scripts/check-calendar.cjs
 
 Commit index.html and site-version.json from this run together with changed assets. The stamp is derived from asset contents; rerunning without changes preserves the release ID. Pages deploys main automatically. Verify the public site-version.json matches the release ID before reporting a version live.
 
 Open pages poll every15seconds, wait for matching published HTML, retain view/month/filter/scroll, and preserve local calculations. Do not reload while a field is being edited. On local storage failure, ask the viewer to export the scenario rather than automatically reload and lose it. The first upgrade from a version without auto-update requires1manual refresh.
+
+The working planning layer is planning-data.js. Preserve source dates in data.js; new proposed days, recurring rhythms, shared preparation and conditional projects must keep their statuses. The calendar includes embedded programs and dated residency slots, but the staffing model must not add a second shared production for them. Unknown opening dates stay unknown; readiness deadlines are separate.

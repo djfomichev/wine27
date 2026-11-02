@@ -12,11 +12,15 @@
       sessionStorage.removeItem(key);
       const ui=JSON.parse(stored);
       if(ui&&ui.version===current&&typeof state==='object'){
-        if(['load','loadMonth','year','month','projects'].includes(ui.view))state.view=ui.view;
+        if(['load','loadMonth','year','month','projects','expert','plan'].includes(ui.view))state.view=ui.view;
         if(Number.isInteger(ui.month)&&ui.month>=0&&ui.month<12)state.month=ui.month;
-        state.category=['all','wine','music','gastro','art','city','partner'].includes(ui.category)?ui.category:'all';
+        state.category=['all','wine','music','gastro','art','city','partner','expert'].includes(ui.category)?ui.category:'all';
         state.festivalsOnly=ui.festivalsOnly===true;
-        state.density=ui.density==='detail'?'detail':'compact';
+        state.density=ui.readabilityVersion===2&&ui.density==='compact'?'compact':'detail';
+        state.expertTrack=['all','people','wines','recognition'].includes(ui.expertTrack)?ui.expertTrack:'all';
+        state.expertTier=['all','core','development','reserve','conditional_session'].includes(ui.expertTier)?ui.expertTier:'all';
+        state.planMonth=Number.isInteger(ui.planMonth)&&ui.planMonth>=0&&ui.planMonth<12?ui.planMonth:null;
+        state.expertMonth=Number.isInteger(ui.expertMonth)&&ui.expertMonth>=0&&ui.expertMonth<12?ui.expertMonth:null;
         state.query=typeof ui.query==='string'?ui.query:'';
         document.getElementById('search').value=state.query;render();
         const planner=document.querySelector('.team-planner');if(planner&&ui.planner)planner.open=true;
@@ -32,7 +36,7 @@
     if(typeof loadStorageOK!=='undefined'&&!loadStorageOK){say('Новая версия готова · сначала скачайте расчёт');return;}
     try{
       if(typeof saveLoad==='function'&&!saveLoad()){say('Сначала скачайте расчёт, затем обновите страницу');return;}
-      const ui={version:pending,view:state.view,month:state.month,category:state.category,festivalsOnly:state.festivalsOnly,density:state.density,query:state.query,planner:!!document.querySelector('.team-planner')?.open,scroll:window.scrollY};
+      const ui={version:pending,readabilityVersion:2,view:state.view,month:state.month,category:state.category,festivalsOnly:state.festivalsOnly,density:state.density,expertTrack:state.expertTrack,expertTier:state.expertTier,expertMonth:state.expertMonth,planMonth:state.planMonth,query:state.query,planner:!!document.querySelector('.team-planner')?.open,scroll:window.scrollY};
       sessionStorage.setItem(key,JSON.stringify(ui));
     }catch{say('Новая версия готова · обновите страницу вручную');return;}
     const next=new URL(location.href);next.searchParams.set('v',pending);
