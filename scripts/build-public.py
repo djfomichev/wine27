@@ -5,7 +5,7 @@ import copy,json,re
 
 ROOT=Path(__file__).resolve().parents[1]
 def read(name):
-    s=(ROOT/'work'/name).read_text()
+    s=(ROOT/'private-work'/name).read_text()
     return json.loads(s[s.index('{'):s.rindex('}')+1])
 def write(name,var,data):
     (ROOT/name).write_text('window.'+var+' = '+json.dumps(data,ensure_ascii=False,indent=2)+';\n')
@@ -83,14 +83,15 @@ D['meta']={'year':2027,'edition':'presentation','statusExplanation':'Предв�
 for p in X['projects']:
     p['notes']='';p['sourceLabel']=''
     p['statusLabel']='Программа 2027' if p['launch_tier']=='core' else 'В разработке'
-    if p['id']=='exp_russian_expert':p['subtitle']='Профессиональные знания и дегустационная экспертиза российских вин. Проект в разработке.'
-    if p['id']=='exp_champions':p['subtitle']='Соревнование сильнейших винных специалистов. Проект в разработке.'
-    if p['id']=='exp_sparkling_session':p['subtitle']='Специализированная оценка классических игристых вин и винный салон. Проект в разработке.'
+    if p['id']=='exp_russian_expert':p['subtitle']='Профессиональные знания и дегустационная экспертиза российских вин.'
+    if p['id']=='exp_champions':p['subtitle']='Соревнование сильнейших винных специалистов.'
+    if p['id']=='exp_sparkling_session':p['subtitle']='Специализированная оценка классических игристых вин и винный салон.'
     p['detail']=p['subtitle']
     e=next((e for e in D['events']+D['projects'] if e['id']==p['id']),None)
     if e and p['id']!='award':e['description']=p['subtitle']
 X['team']=[];X['monthly_work']=[];X['candidate_partner_windows']=[];X['status_definition']=''
 
+P.pop('production',None)
 P['preparation']=[];P['conflicts']=[];P['relations']=[];P['event_details']=[];P['rules']=[];P['resource_gates']=[];P['priority_decisions']=[];P['calendar_adjustments']={};P['source']='Программа города 2027'
 P['month_focus']=[{'month':i+1,'name':m['name'],'focus':'','load_logic':''} for i,m in enumerate(D['months'])]
 P['conditional_session']={}
@@ -115,4 +116,4 @@ for p in P['embedded']:
     p['counting']='';p.pop('previousDateRange',None)
 
 write('data.js','CALENDAR_DATA',D);write('planning-data.js','PLANNING_DATA',P);write('expert-data.js','EXPERT_DATA',X)
-print('Built presentation data from work/: all event/project IDs retained; internal planning fields removed.')
+print('Built presentation data from private sources: all event/project IDs retained; internal planning fields removed.')

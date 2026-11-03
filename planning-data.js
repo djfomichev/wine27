@@ -135,6 +135,14 @@ window.PLANNING_DATA = {
       "end": "2027-09-05",
       "status": "proposed",
       "venue": "Площадку согласовать с командой проекта"
+    },
+    {
+      "id": "exp_sparkling_session",
+      "start": "2027-12-03",
+      "end": "2027-12-05",
+      "status": "proposed",
+      "type": "expert",
+      "venue": "Энотека и отдельный зал для экспертной сессии"
     }
   ],
   "preparation": [],

@@ -1,0 +1,4 @@
+private-work/
+*.key
+*.secret
+__pycache__/

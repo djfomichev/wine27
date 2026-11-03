@@ -4,11 +4,11 @@ from pathlib import Path
 import re,hashlib,json,datetime
 ROOT=Path(__file__).resolve().parents[1]
 assets=['style.css','expert.css','app.js','load.js','data.js','expert.js','expert-data.js',
-        'planning-data.js','plan.js','program-guide.js','public-view.js','auto-update.js',
-        'work/data.js','work/expert-data.js','work/planning-data.js','logo.svg',
+        'planning-data.js','plan.js','program-guide.js','public-view.js','public-calendar.js','production.js','auto-update.js',
+        'private-work/data.js','private-work/expert-data.js','private-work/planning-data.js','work/lock.js','work/lock.css','logo.svg',
         'favicon.svg','favicon.png','favicon.ico','apple-touch-icon.png',
         'ALS-Hauss-Next-Regular.woff2','ALS-Hauss-Next-Wide-Bold.woff2']
-pages=['index.html','work/index.html']
+pages=['index.html','work/index.html','private-work/index.html']
 pattern=r'((?:href|src)="(?:'+ '|'.join(re.escape(a) for a in assets)+r'))(?:\?[^"\s]*)?"'
 normal={}
 for name in pages:

@@ -1,0 +1,31 @@
+const fs=require('node:fs'),assert=require('node:assert/strict'),vm=require('node:vm');
+const {webcrypto}=require('node:crypto');
+async function main(){
+ const key=fs.readFileSync(process.argv[2],'utf8').trim();assert.match(key,/^[A-Za-z0-9_-]{43}$/);
+ const payload=JSON.parse(fs.readFileSync('work/payload.json'));
+ const raw=Buffer.from(key,'base64url'),iv=Buffer.from(payload.iv,'base64url'),cipher=Buffer.from(payload.ciphertext,'base64url'),aad=new TextEncoder().encode('wine27-work-v1:'+payload.release);
+ const imported=await webcrypto.subtle.importKey('raw',raw,{name:'AES-GCM'},false,['decrypt']);
+ const decoded=await webcrypto.subtle.decrypt({name:'AES-GCM',iv,additionalData:aad},imported,cipher);
+ const content=await new Response(new Blob([decoded]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
+ const page=JSON.parse(content);assert.equal(page.release,payload.release);
+ for(const name of ['data.js','planning-data.js','expert-data.js','index.html'])assert.equal(page.sources[name],fs.readFileSync('private-work/'+name,'utf8'));
+ assert.match(page.html,/Рассчитать команду/);assert.match(page.html,/lockWork/);
+ assert.doesNotMatch(page.html,/<script src=/);assert.doesNotMatch(page.html,/src="private-work\//);
+ const wrong=Buffer.from(raw);wrong[0]^=1;
+ const wrongKey=await webcrypto.subtle.importKey('raw',wrong,{name:'AES-GCM'},false,['decrypt']);
+ await assert.rejects(webcrypto.subtle.decrypt({name:'AES-GCM',iv,additionalData:aad},wrongKey,cipher));
+ const changed=Buffer.from(cipher);changed[25]^=1;
+ await assert.rejects(webcrypto.subtle.decrypt({name:'AES-GCM',iv,additionalData:aad},imported,changed));
+ const gate=fs.readFileSync('work/index.html','utf8');assert.doesNotMatch(gate,/planning-data|expert-data|private-work|Рабочий слот|расчёт команды/);
+ for(const name of ['data.js','expert-data.js','planning-data.js'])assert.equal(fs.existsSync('work/'+name),false);
+ let rendered='',stored='',finished;
+ const ready=new Promise(resolve=>finished=resolve);
+ const els={unlockForm:{addEventListener(){}},accessKey:{value:'',focus(){}},unlockButton:{disabled:false},lockStatus:{textContent:''}};
+ const loc={href:'https://wine27.ru/work/',pathname:'/work/',search:'',hash:'#key='+key};
+ const ctx={document:{getElementById:id=>els[id],open(){},write:h=>{rendered=h;finished()},close(){}},location:loc,history:{replaceState:(_,__,url)=>{loc.hash=url.slice(url.indexOf('#'))}},sessionStorage:{getItem:()=>null,setItem:(_,v)=>stored=v,removeItem:()=>{}},fetch:async()=>({ok:true,json:async()=>payload}),crypto:webcrypto,TextEncoder,Response,Blob,DecompressionStream,URL,atob,console};
+ vm.createContext(ctx);vm.runInContext(fs.readFileSync('work/lock.js','utf8'),ctx);
+ await Promise.race([ready,new Promise((_,reject)=>setTimeout(()=>reject(Error('Gate did not unlock')),3000))]);
+ assert.equal(rendered,page.html);assert.equal(stored,key);assert.equal(loc.hash,'#load');assert.equal(els.accessKey.value,'');
+ console.log('PASS: AES-GCM browser-compatible decryption, wrong-key rejection, tamper rejection, exact source recovery, no plaintext working endpoints, and gate removes key from URL.');
+}
+main().catch(error=>{console.error(error.message);process.exitCode=1});

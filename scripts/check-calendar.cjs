@@ -1,7 +1,7 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const elements=new Map();function el(s){if(!elements.has(s))elements.set(s,{innerHTML:'',textContent:'',value:'',hidden:false,style:{},classList:{toggle(){}},dataset:{},setAttribute(){},addEventListener(){},focus(){},showModal(){this.open=true},close(){this.open=false}});return elements.get(s)}
 const handlers={};const ctx={window:{addEventListener(){},scrollTo(){}},document:{querySelector:el,querySelectorAll:()=>[],addEventListener:(k,f)=>(handlers[k]??=[]).push(f),createElement:()=>({click(){}})},localStorage:{getItem(){return null},setItem(){}},location:{hash:'',pathname:'/work/'},setTimeout:()=>{},URL,Blob,console};vm.createContext(ctx);
-for(const p of ['work/data','work/expert-data','work/planning-data','load','expert','plan','program-guide','public-view','app'])vm.runInContext(fs.readFileSync(p+'.js','utf8'),ctx);
+for(const p of ['private-work/data','private-work/expert-data','private-work/planning-data','load','expert','plan','program-guide','public-view','public-calendar','production','app'])vm.runInContext(fs.readFileSync(p+'.js','utf8'),ctx);
 function check(code){return vm.runInContext(code,ctx)}
 assert.equal(check('state.view'),'load');assert.equal(check('state.density'),'detail');assert.match(el('#loadView').innerHTML,/Карта года/);assert.equal((el('#loadView').innerHTML.match(/<article[^>]*class="overview-month/g)||[]).length,12);
 assert.equal(check('D.events.length'),33);assert.equal(check('D.projects.length'),58);assert.equal(check('D.holidays.length'),8);
@@ -68,9 +68,9 @@ for(const [id,month] of [['exhibition',2],['exhibition-nov',11]]){
 }
 assert.equal(check('D.projects.find(p=>p.id==="cheese").month??null'),null);
 for(const id of ['dozen','south-table','anchovy'])assert(check(`D.events.some(p=>p.id==='${id}')`));
-assert.equal(check('D.projects.find(p=>p.id==="exp_sparkling_session").month??null'),null);
+assert.equal(check('D.projects.find(p=>p.id==="exp_sparkling_session").month??null'),12);
 assert.equal(check('expertById.get("exp_sparkling_session").first_year'),null);
-assert.equal(check('loadRows(11).some(r=>r.source==="exp_sparkling_session")'),false);
+assert.equal(check('loadRows(11).some(r=>r.source==="exp_sparkling_session")'),true);
 assert.equal(check('expertById.get("award").concept_status'),'approved_existing_decision');
 assert.equal(check('D.events.filter(p=>p.id==="award").length'),1);
 assert.equal(check('D.projects.some(p=>p.id==="award")'),false);
@@ -84,7 +84,7 @@ for(let m=0;m<12;m++){
  assert.equal(check(`activeLoad(${m}).some(p=>p.id==='cabaret')`),m>=5&&m<=9);
 }
 check('state.category="expert";setView("year")');
-assert.match(el('#footerNote').textContent,/С рабочими датами: 15 · Без точных дней: 0/);
+assert.match(el('#footerNote').textContent,/С рабочими датами: 16 · Без точных дней: 0/);
 check('setView("month",1)');
 assert.match(el('#footerNote').textContent,/С рабочими датами: 3 · Без точных дней: 0/);
 check('state.category="all";setView("expert")');
@@ -141,7 +141,7 @@ assert.match(el('#loadView').innerHTML,/id="load-month-11"/);
 assert.match(el('#loadView').innerHTML,/data-jump-view="load"/);
 check('setView("year")');assert.match(el('#calendarJump').innerHTML,/data-jump-view="year"/);
 const html=fs.readFileSync('index.html','utf8');
-assert.equal((html.match(/class="nav-label-mobile"/g)||[]).length,5);
+assert.equal((html.match(/class="nav-label-mobile"/g)||[]).length,3);
 assert.match(fs.readFileSync('expert.css','utf8'),/env\(safe-area-inset-bottom\)/);
 console.log('PASS: large default, 12 month jump targets, mobile navigation labels and dated phone agenda.');
 
@@ -149,7 +149,7 @@ console.log('PASS: large default, 12 month jump targets, mobile navigation label
 check('state.query="";state.category="all";state.festivalsOnly=false;state.planMonth=null;setView("plan")');
 assert.match(el('#planView').innerHTML,/Рабочий план/);
 assert.equal((el('#planView').innerHTML.match(/class="plan-card tier-[^" ]+(?: is-festival)?"/g)||[]).length,102);
-assert.equal(check('calendarItems().length'),87);
+assert.equal(check('calendarItems().length'),88);
 assert.equal(check('D.embedded.length'),11);
 assert.equal(check('new Set(calendarItems().map(e=>e.id)).size'),check('calendarItems().length'));
 for(const id of check('[...D.events,...D.projects].map(e=>e.id)'))assert(check(`!!planningItem('${id}').start||preparationFor('${id}').length>0||recurringFor('${id}').length>0`),'No date, preparation or rhythm for '+id);

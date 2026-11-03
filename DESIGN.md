@@ -29,3 +29,6 @@ ALS Hauss Next Regular: набор, даты. ALS Hauss Next Wide Bold: заго
 
 ## Presentation and working editions
 Root is a clean dated program for leadership and colleagues. /work/ shares the visual system but contains production details and questions. Guest formats use readable two-column cards on desktop, one column below 900px. Each card states the experience, rhythm and place; working cards add team and conditions. Services, launch preparation and backstage work are distinct groups. Never show a fabricated count for an unlaunched ritual.
+
+## Calendar-only team edition
+Root navigation has three views: year map, dated calendar and month. No catalogue or production workflow. Every day exposes regular formats alongside dated events. Highlight city rituals in a cream section with gold accents. Keep preliminary date labels concise. /work/ opens behind a personal-key gate; its working UI remains available after decryption.
