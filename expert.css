@@ -304,3 +304,8 @@ body{font-size:16px;line-height:1.5}
  .team-calendar .month-theme-hero .month-theme-caption{font-size:12px}
  .team-calendar #monthAside{grid-template-columns:minmax(0,1fr);gap:16px}
 }
+
+/* Primary filter comes first in the DOM and remains easy to find on phones. */
+.filters .all-filter{min-width:104px;min-height:52px;margin-right:6px;padding:12px 24px;border-radius:28px;font:700 20px/1 HaussWide,sans-serif;justify-content:center}
+.filters .festival-filter{margin-right:0}
+@media(max-width:760px){.filters .all-filter{min-width:94px;min-height:48px;margin-right:4px;padding:12px 20px;font-size:18px}}
