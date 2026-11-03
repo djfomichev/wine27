@@ -1,17 +1,29 @@
 #!/usr/bin/env python3
-"""Stamp all deployable assets and the page with a content-derived release ID."""
+"""Publish the presentation and working editions as one content-derived release."""
 from pathlib import Path
 import re,hashlib,json,datetime
 ROOT=Path(__file__).resolve().parents[1]
-p=ROOT/'index.html';html=p.read_text()
-html=re.sub(r'<meta name="wine27-version" content="[^"]*">','',html)
-html=re.sub(r'((?:href|src)="(?:style\.css|expert\.css|app\.js|load\.js|data\.js|expert\.js|expert-data\.js|planning-data\.js|plan\.js|auto-update\.js|favicon\.svg|favicon\.png|favicon\.ico|apple-touch-icon\.png))\?[^\"]*',r'\1',html)
-assets=['style.css','expert.css','app.js','load.js','data.js','expert.js','expert-data.js','planning-data.js','plan.js','auto-update.js','logo.svg','favicon.svg','favicon.png','favicon.ico','apple-touch-icon.png','ALS-Hauss-Next-Regular.woff2','ALS-Hauss-Next-Wide-Bold.woff2']
-h=hashlib.sha256(html.encode())
+assets=['style.css','expert.css','app.js','load.js','data.js','expert.js','expert-data.js',
+        'planning-data.js','plan.js','program-guide.js','public-view.js','auto-update.js',
+        'work/data.js','work/expert-data.js','work/planning-data.js','logo.svg',
+        'favicon.svg','favicon.png','favicon.ico','apple-touch-icon.png',
+        'ALS-Hauss-Next-Regular.woff2','ALS-Hauss-Next-Wide-Bold.woff2']
+pages=['index.html','work/index.html']
+pattern=r'((?:href|src)="(?:'+ '|'.join(re.escape(a) for a in assets)+r'))(?:\?[^"\s]*)?"'
+normal={}
+for name in pages:
+    html=(ROOT/name).read_text()
+    html=re.sub(r'<meta name="wine27-version" content="[^"]*">','',html)
+    normal[name]=re.sub(pattern,r'\1"',html)
+h=hashlib.sha256()
+for name,html in normal.items():h.update(name.encode());h.update(html.encode())
 for name in assets:h.update(name.encode());h.update((ROOT/name).read_bytes())
 version=h.hexdigest()[:16]
-html=html.replace('</head>',f'<meta name="wine27-version" content="{version}"></head>')
-html=re.sub(r'((?:href|src)="(?:style\.css|expert\.css|app\.js|load\.js|data\.js|expert\.js|expert-data\.js|planning-data\.js|plan\.js|auto-update\.js|favicon\.svg|favicon\.png|favicon\.ico|apple-touch-icon\.png))"',lambda m:m.group(1)+'?v='+version+'"',html)
-p.write_text(html)
-(ROOT/'site-version.json').write_text(json.dumps({'version':version,'updated':datetime.datetime.now(datetime.timezone.utc).isoformat()},indent=2)+'\n')
+for name,html in normal.items():
+    html=re.sub(pattern,lambda m:m.group(1)+'?v='+version+'"',html)
+    html=html.replace('</head>',f'<meta name="wine27-version" content="{version}"></head>')
+    (ROOT/name).write_text(html)
+previous=json.loads((ROOT/'site-version.json').read_text()) if (ROOT/'site-version.json').exists() else {}
+release=previous if previous.get('version')==version else {'version':version,'updated':datetime.datetime.now(datetime.timezone.utc).isoformat()}
+for folder in ['', 'work/']:(ROOT/(folder+'site-version.json')).write_text(json.dumps(release,indent=2)+'\n')
 print(version)

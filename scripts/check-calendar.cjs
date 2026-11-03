@@ -1,7 +1,7 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const elements=new Map();function el(s){if(!elements.has(s))elements.set(s,{innerHTML:'',textContent:'',value:'',hidden:false,style:{},classList:{toggle(){}},dataset:{},setAttribute(){},addEventListener(){},focus(){},showModal(){this.open=true},close(){this.open=false}});return elements.get(s)}
-const handlers={};const ctx={window:{addEventListener(){},scrollTo(){}},document:{querySelector:el,querySelectorAll:()=>[],addEventListener:(k,f)=>(handlers[k]??=[]).push(f),createElement:()=>({click(){}})},localStorage:{getItem(){return null},setItem(){}},location:{hash:''},setTimeout:()=>{},URL,Blob,console};vm.createContext(ctx);
-for(const p of ['data','expert-data','planning-data','load','expert','plan','app'])vm.runInContext(fs.readFileSync(p+'.js','utf8'),ctx);
+const handlers={};const ctx={window:{addEventListener(){},scrollTo(){}},document:{querySelector:el,querySelectorAll:()=>[],addEventListener:(k,f)=>(handlers[k]??=[]).push(f),createElement:()=>({click(){}})},localStorage:{getItem(){return null},setItem(){}},location:{hash:'',pathname:'/work/'},setTimeout:()=>{},URL,Blob,console};vm.createContext(ctx);
+for(const p of ['work/data','work/expert-data','work/planning-data','load','expert','plan','program-guide','public-view','app'])vm.runInContext(fs.readFileSync(p+'.js','utf8'),ctx);
 function check(code){return vm.runInContext(code,ctx)}
 assert.equal(check('state.view'),'load');assert.equal(check('state.density'),'detail');assert.match(el('#loadView').innerHTML,/Карта года/);assert.equal((el('#loadView').innerHTML.match(/<article[^>]*class="overview-month/g)||[]).length,12);
 assert.equal(check('D.events.length'),33);assert.equal(check('D.projects.length'),58);assert.equal(check('D.holidays.length'),8);
@@ -17,7 +17,7 @@ check('loadScenario.rows["7:regular:radio"].prep=""');assert.equal(check('loadSt
 check('loadScenario.rows["7:regular:radio"]={n:0,people:0,hours:0,prep:0}');assert.equal(check('loadStats(7).done'),1);assert.equal(check('loadStats(7).total'),0);
 check('loadScenario.extra.push({id:"extra:test",title:"Букинг Винной недели",month:6,category:"city"});loadScenario.rows["6:extra:test"]={n:0,people:0,hours:0,prep:100}');assert.equal(check('loadStats(6).total'),100);assert.equal(check('loadStats(9).total'),0);
 check('loadScenario={rows:{},capacity:{},extra:[]}');
-for(let i=0;i<12;i++){check(`setView('loadMonth',${i})`);assert.match(el('#loadMonthView').innerHTML,/Постоянная работа месяца/);assert.match(el('#loadMonthView').innerHTML,/Рассчитать команду/);check(`setView('month',${i})`);assert.match(el('#monthGrid').innerHTML,/day-number/)}
+for(let i=0;i<12;i++){check(`setView('loadMonth',${i})`);assert.match(el('#loadMonthView').innerHTML,/Регулярная программа/);assert.match(el('#loadMonthView').innerHTML,/Рассчитать команду/);check(`setView('month',${i})`);assert.match(el('#monthGrid').innerHTML,/day-number/)}
 check('location.hash="#load-month-8";readHash()');assert.equal(check('state.view'),'loadMonth');assert.equal(check('state.month'),7);
 check('state.query="радио";renderLoad()');assert.equal(check('activeLoad(7).length'),1);assert.equal(check('loadEvents(7,"major").length'),0);assert.match(el('#loadView').innerHTML,/Радио/);
 check('state.query="";setView("year")');assert.match(el('#yearGrid').innerHTML,/Большой август/);
@@ -157,7 +157,7 @@ for(const id of ['project-2','project-3','project-5','project-6','project-7','pr
 assert.equal(check('fullPlanDate("2026-11-16","2027-03-26")'),'16 ноября 2026 – 26 марта 2027');
 assert.equal(check('fullPlanDate("2026-11-16","2026-12-18")'),'16 ноября – 18 декабря 2026');
 for(let m=0;m<12;m++){
- check(`setView('loadMonth',${m})`);assert.match(el('#loadMonthView').innerHTML,/Недельная сетка/);assert.match(el('#loadMonthView').innerHTML,/prep-details/);
+ check(`setView('loadMonth',${m})`);assert.match(el('#loadMonthView').innerHTML,/Условия и расписание/);assert.match(el('#loadMonthView').innerHTML,/prep-details/);
  assert.equal(check(`new Set(loadRows(${m}).map(r=>r.id)).size`),check(`loadRows(${m}).length`));
  assert.equal(check(`loadRows(${m}).some(r=>r.id.startsWith('event:embedded-')||r.id.startsWith('event:slot-'))`),false,'Program components must not add production twice');
 }

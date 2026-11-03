@@ -222,3 +222,27 @@ body{font-size:16px;line-height:1.5}
 .atlas-compact .overview-finale .atlas-event{padding:11px 9px;min-height:70px}
 .atlas-compact .overview-finale .atlas-event b{font-size:17px}
 @media(max-width:760px){.overview-finale .atlas-event b{font-size:23px}.atlas-compact .overview-finale{padding-left:5px;margin-left:3px}.atlas-compact .overview-finale .atlas-event b{font-size:16px}.atlas-compact .overview-finale .overview-format{font-size:11px}}
+
+/* A monthly program reads as events followed by recurring guest formats. */
+.month-dated{margin:34px 0 42px}.month-dated>.section-heading{margin-bottom:20px}
+.month-dated-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 28px}
+.month-dated-grid .work-event{margin:0;min-width:0}
+.mechanics-section{margin:42px 0}.mechanics-section>h3{font:30px/1.2 HaussWide;margin:0 0 22px}
+.mechanics-intro{font-size:17px;line-height:1.5;max-width:75ch;margin:-10px 0 22px}
+.mechanics-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
+.program-mechanic{min-width:0;padding:26px 28px;border:1px solid var(--line);border-top:5px solid var(--mint);border-radius:0 0 16px 16px;background:#fff}
+.program-mechanic h4{font:25px/1.22 HaussWide;margin:0 0 15px;overflow-wrap:anywhere}
+.program-mechanic p{font-size:18px;line-height:1.5;margin:12px 0}
+.program-mechanic .mechanic-when{font:18px/1.45 HaussWide;color:var(--green);margin:22px 0 12px}
+.mechanic-status{display:inline-block;font-size:13px;line-height:1.4;padding:5px 10px;border:1px solid var(--line);border-radius:6px;margin-bottom:8px}
+.mechanic-roles{margin:20px 0;font-size:16px;line-height:1.5}.mechanic-roles>div{display:grid;grid-template-columns:85px minmax(0,1fr);gap:12px;margin:10px 0}.mechanic-roles dt{color:var(--muted)}.mechanic-roles dd{margin:0}
+.mechanic-details{border-top:1px solid var(--line);margin-top:20px;padding-top:8px}.mechanic-details>summary{font:16px/1.4 HaussWide;cursor:pointer;padding:12px 0;min-height:44px}.mechanic-details p{font-size:16px}
+.mechanic-rhythm{margin:20px 0;border-left:3px solid var(--mint);padding-left:16px}.mechanic-rhythm>b{font:17px/1.4 HaussWide}.mechanic-rhythm button{display:block;text-align:left;min-height:44px;margin:4px 0}
+.mechanic-service{border-top-color:var(--yellow)}.mechanic-launch{border-top-color:var(--green);background:#f6f8f6}.mechanic-team{border-top-color:var(--wine)}
+.mechanics-team{margin:35px 0}.mechanics-team>summary{font:23px/1.3 HaussWide;cursor:pointer;min-height:44px;padding:12px 0}.mechanics-team[open]>summary{margin-bottom:18px}
+.program-mechanic .public-program-place{font-size:15px;color:var(--muted);margin:18px 0 8px}
+.program-mechanic>button{font-size:16px;min-height:44px;text-align:left}
+.public-program-dates{display:flex;align-items:flex-start;flex-wrap:wrap;gap:8px 18px;margin:20px 0 6px}.public-program-dates button{font:17px/1.4 HaussWide;min-height:44px;text-align:left;color:var(--green)}
+@media(max-width:900px){.mechanics-grid,.month-dated-grid{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:760px){.month-dated{margin:28px 0 34px}.month-dated>.section-heading{align-items:flex-start;gap:14px;flex-direction:column}.month-dated h3,.mechanics-section>h3{font-size:27px}.mechanics-section{margin:34px 0}.program-mechanic{padding:24px 20px}.program-mechanic h4{font-size:24px}.program-mechanic p{font-size:17px}.program-mechanic .mechanic-when{font-size:18px}.mechanic-roles>div{grid-template-columns:minmax(0,1fr);gap:3px}.mechanic-roles dt{font-size:14px}.mechanic-details>summary{font-size:16px}.public-program-dates{gap:5px 14px}.public-program-dates button{font-size:16px}.mechanics-team>summary{font-size:22px}}
+@media print{.mechanics-grid,.month-dated-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.program-mechanic{break-inside:avoid;padding:14px}.program-mechanic h4{font-size:18px}.program-mechanic p{font-size:13px}.mechanic-status{font-size:10px}.program-mechanic>button{display:none}}

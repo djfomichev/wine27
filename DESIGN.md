@@ -26,3 +26,6 @@ ALS Hauss Next Regular: набор, даты. ALS Hauss Next Wide Bold: заго
 
 ## Полный план
 По последнему прямому запросу календарь дополнен рабочими предложениями дней, часами регулярных слотов и этапами подготовки. Слой planning-data.js не утверждает новые договорённости и открытия. Выставки получили предлагаемые окна, поэтому прежнее правило «только месяц» сохраняет историю источника, но не ограничивает новый рабочий сценарий. Резиденции и вложенные программы видны по датам и считаются внутри основных смен. Подготовка и недельная сетка раскрываются по запросу, чтобы основной экран оставался читаемым.
+
+## Presentation and working editions
+Root is a clean dated program for leadership and colleagues. /work/ shares the visual system but contains production details and questions. Guest formats use readable two-column cards on desktop, one column below 900px. Each card states the experience, rhythm and place; working cards add team and conditions. Services, launch preparation and backstage work are distinct groups. Never show a fabricated count for an unlaunched ritual.

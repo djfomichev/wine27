@@ -2,7 +2,7 @@
 (() => {
   const current=document.querySelector('meta[name="wine27-version"]')?.content;
   if(!current)return;
-  const key='wine27-ui-before-update';
+  const key='wine27-ui-before-update'+(WORKING?'-work':'');
   const status=document.getElementById('updateStatus');
   let pending=null,busy=false,lastInput=0;
   const say=text=>{if(status)status.textContent=text;};
@@ -33,9 +33,9 @@
   function apply(){
     if(!pending||document.visibilityState!=='visible')return;
     if(editing()){say('Новая версия готова · обновим после ввода');return;}
-    if(typeof loadStorageOK!=='undefined'&&!loadStorageOK){say('Новая версия готова · сначала скачайте расчёт');return;}
+    if(WORKING&&typeof loadStorageOK!=='undefined'&&!loadStorageOK){say('Новая версия готова · сначала скачайте расчёт');return;}
     try{
-      if(typeof saveLoad==='function'&&!saveLoad()){say('Сначала скачайте расчёт, затем обновите страницу');return;}
+      if(WORKING&&typeof saveLoad==='function'&&!saveLoad()){say('Сначала скачайте расчёт, затем обновите страницу');return;}
       const ui={version:pending,readabilityVersion:2,view:state.view,month:state.month,category:state.category,festivalsOnly:state.festivalsOnly,density:state.density,expertTrack:state.expertTrack,expertTier:state.expertTier,expertMonth:state.expertMonth,planMonth:state.planMonth,query:state.query,planner:!!document.querySelector('.team-planner')?.open,scroll:window.scrollY};
       sessionStorage.setItem(key,JSON.stringify(ui));
     }catch{say('Новая версия готова · обновите страницу вручную');return;}
