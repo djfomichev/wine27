@@ -383,7 +383,7 @@ body{font-size:16px;line-height:1.5}
  .team-calendar .heading h1,.team-calendar .mast-year{font-size:24px}
  .team-calendar .mast .search{flex:0 0 160px;width:160px}
 }
-/* Shared calendar controls: visible multi-select actions and one context row. */
+/* Shared calendar: a single full-width group of multi-select controls. */
 .team-calendar .controls{display:flex;flex-direction:column;align-items:stretch;gap:12px;padding:18px 0 14px;margin-bottom:16px;border-bottom:1px solid var(--line)}
 .team-calendar .controls .filters{display:flex;flex-wrap:wrap;align-items:center;gap:8px;width:100%;overflow:visible;padding:0}
 .team-calendar .filters button{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:54px;padding:12px 15px;border:1px solid #00000032;border-radius:30px;background:#fff;color:#000;font:18px/1.2 Hauss;white-space:nowrap;box-shadow:none}
@@ -396,11 +396,7 @@ body{font-size:16px;line-height:1.5}
 .team-calendar .filters button.active .filter-check{opacity:1}
 .team-calendar .filters button.active .dot{visibility:hidden}
 .team-calendar .filters button:focus-visible{outline:3px solid var(--green);outline-offset:3px}
-.team-calendar .control-meta{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:44px}
-.team-calendar .filter-summary{display:flex;align-items:center;gap:16px;min-width:0;font-size:14px;line-height:1.4}
 .team-calendar #reset{width:auto;flex:none;font-size:14px;min-height:44px;padding:8px 0;text-decoration:underline;text-underline-offset:4px}
-.team-calendar #calendarDensity{background:#f1f2ee;border:1px solid #00000016;padding:3px;border-radius:26px;gap:2px}
-.team-calendar #calendarDensity button{min-height:40px;padding:8px 18px;font:15px/1.2 Hauss;border-radius:22px;white-space:nowrap}
 .team-calendar .search-clear{border:0;background:transparent;color:inherit;flex:none;width:34px;height:36px;font:26px/1 Hauss;padding:0}
 .team-calendar .search input::-webkit-search-cancel-button{-webkit-appearance:none}
 .team-calendar .search input::-webkit-search-decoration{-webkit-appearance:none}
@@ -431,11 +427,7 @@ body{font-size:16px;line-height:1.5}
  .team-calendar .filters .all-filter{min-width:76px;min-height:46px;padding:10px 18px;font-size:19px}
  .team-calendar .filters .dot{width:8px;height:8px}
  .team-calendar .filters .filter-check{left:10px;font-size:15px;width:12px}
- .team-calendar .control-meta{flex-wrap:wrap;gap:6px;min-height:0}
- .team-calendar .filter-summary{width:100%;justify-content:space-between;gap:10px;font-size:13px;min-height:30px}
  .team-calendar #reset{font-size:13px;min-height:36px}
- .team-calendar #calendarDensity{margin-left:auto}
- .team-calendar #calendarDensity button{min-height:36px;font-size:13px;padding:8px 16px}
  .team-calendar .mast .search{gap:6px}
  .calendar-empty{padding:20px}.calendar-empty h2{font-size:22px}.calendar-empty p{font-size:15px}
  #detailDialog .dialog-close{margin:-8px -8px 0 8px}
@@ -457,9 +449,19 @@ body{font-size:16px;line-height:1.5}
  .team-calendar .filters .mobile-filter-toggle:focus-visible{outline-offset:3px}
 }
 
-/* Controls only: omit counters and instructional filler below the filters. */
-.team-calendar .control-meta{justify-content:flex-end}
-.team-calendar .filter-summary{width:auto;min-height:0;margin-right:auto}
-.team-calendar .filter-summary:has(#reset[hidden]){display:none}
-.team-calendar .control-meta:has(#reset[hidden]):has(#calendarDensity[hidden]){display:none}
-@media(max-width:760px){.team-calendar .control-meta{flex-wrap:nowrap}.team-calendar .filter-summary{width:auto;min-height:0}}
+
+
+/* One continuous filter panel, with inline reset and no density toolbar. */
+.team-calendar .controls{display:block;padding:18px 0 0;margin:0 0 18px;border:0}
+.team-calendar .controls .filters{gap:8px;align-items:center}
+.team-calendar .filters>button{flex:1 0 auto}
+.team-calendar .filters .all-filter{margin:0}
+.team-calendar .filters #reset{display:inline-flex;flex:0 0 54px;min-width:54px;width:54px;min-height:54px;margin:0;padding:0;font:28px/1 Hauss;text-decoration:none;border-color:#00000032}
+@media(min-width:1700px){.team-calendar .filters #reset{flex-basis:58px;width:58px;min-height:58px}}
+@media(max-width:760px){
+ .team-calendar .controls{padding:12px 0 0;margin-bottom:12px}
+ .team-calendar .controls .filters{gap:6px}
+ .team-calendar .filters>button{flex:0 0 auto}
+ .team-calendar .filters #reset{display:inline-flex;flex-basis:44px;min-width:44px;width:44px;min-height:44px;font-size:25px}
+ .team-calendar .filters:not(.filters-expanded)>#reset:not([hidden]){display:inline-flex}
+}

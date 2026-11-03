@@ -159,6 +159,8 @@ restore({category:'music',festivalsOnly:true});assert.deepEqual(plain(pub.run('s
 restore({filters:['wine','music','wine','unknown'],view:'month',month:4});
 assert.deepEqual(plain(pub.run('state.filters')),['wine','music']);assert.equal(pub.run('state.view'),'month');
 assert.match(fs.readFileSync('auto-update.js','utf8'),/filters:state.filters/);
+restore({density:'compact',readabilityVersion:2,filters:['wine','music'],view:'load'});assert.equal(pub.run('state.density'),'detail');assert.deepEqual(plain(pub.run('state.filters')),['wine','music']);
+assert.doesNotMatch(publicHTML,/calendarDensity|data-density|control-meta/);
 console.log('PASS: additive filter toggles, independent removal, festival/category union, no duplicates, search, navigation, reset and update migration; public legend and undated strip removed.');
 
 // Public search must expose every matching recurring format and nested event.

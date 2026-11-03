@@ -69,8 +69,6 @@ function renderPublicControls(){
  const found=months.some(r=>r.events.length||r.formats.length),filtered=state.query||state.filters.length;
  $('#clearSearch').hidden=!state.query;
  const toggleLabel=$('#mobileFiltersToggle>span');if(toggleLabel)toggleLabel.textContent='Направления'+(state.filters.length?' · '+state.filters.length:'');
- $('#calendarDensity').hidden=state.view!=='load';
- document.querySelectorAll('[data-density]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.density===state.density)));
  $('#resultNotice').hidden=!!found||!filtered;
  $('#resultNotice').innerHTML=found||!filtered?'':`<h2>${state.view==='month'?'В этом месяце ничего не найдено':'Ничего не найдено'}</h2><p>${state.query?`По запросу «${esc($('#search').value.trim())}»${state.filters.length?' в выбранных направлениях':''}.`:'В выбранных направлениях пока нет программы.'}</p><div>${state.view==='month'?'<button data-view="load">Посмотреть весь год</button>':''}${state.query?'<button data-clear-search>Очистить поиск</button>':''}<button data-reset-filters>Сбросить всё</button></div>`;
 }
