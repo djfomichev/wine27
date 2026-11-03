@@ -189,6 +189,20 @@ pub.run('state.query="джаз";showPublicRhythm("jazz",4)');assert.match(pub.el
 pub.run('state.query="колокол";showPublicRhythm("bell",4)');assert.equal((pub.el('#detailContent').innerHTML.match(/data-city-day=/g)||[]).length,31);
 pub.run('clearCalendarSearch()');assert.equal(pub.el('.month-layout').hidden,false);assert.equal(pub.el('#monthSearchResults').hidden,true);
 console.log('PASS: all recurring categories, exact titles, ё/е search, nested events, honest empty state, month search, seasonal periods and dated slots.');
+// Mobile month and multi-select dialog share the existing calendar state.
+pub.run('resetCalendarFilters();setView("load")');
+assert.equal(pub.el('#mobileMonthJump').value,'');
+assert.equal(pub.el('#calendarJump').innerHTML,'');
+pub.el('#mobileMonthJump').onchange({target:{value:'4'}});
+assert.equal(pub.run('state.month'),4);assert.equal(pub.el('#mobileMonthJump').value,'4');
+const mobileClick=b=>pub.handlers.click.forEach(f=>f({target:{closest:()=>b}}));
+mobileClick({id:'mobileFiltersToggle',dataset:{}});assert.equal(pub.el('#filterDialog').open,true);
+pub.run('state.query="джаз"');mobileClick({dataset:{cat:'wine'}});mobileClick({dataset:{cat:'music'}});
+assert.deepEqual(plain(pub.run('state.filters')),['wine','music']);assert.equal(pub.el('#filterDialog').open,true);
+mobileClick({dataset:{cat:'wine'}});assert.deepEqual(plain(pub.run('state.filters')),['music']);
+mobileClick({dataset:{cat:'all'}});assert.equal(pub.run('state.filters.length'),0);assert.equal(pub.run('state.query'),'джаз');
+mobileClick({dataset:{closeFilters:''}});assert.equal(pub.el('#filterDialog').open,false);
+console.log('PASS: mobile month selector, additive filter sheet and ALL preserves search.');
 // Publishing a new release must not interrupt a reader inside a dialog.
 (async()=>{
  const ed=edition(false),original=ed.ctx.document.querySelector;let poll,reloads=0;
@@ -198,6 +212,7 @@ console.log('PASS: all recurring categories, exact titles, ё/е search, nested 
  ed.ctx.fetch=async url=>({ok:true,json:async()=>({version:'2222222222222222'}),text:async()=>'<meta name="wine27-version" content="2222222222222222">'});
  vm.runInContext(fs.readFileSync('auto-update.js','utf8'),ed.ctx);
  ed.el('#detailDialog').open=true;await poll();assert.equal(reloads,0,'An open event dialog must postpone an update');
- ed.el('#detailDialog').open=false;await poll();assert.equal(reloads,1,'The pending update applies after closing');
+ ed.el('#detailDialog').open=false;ed.el('#filterDialog').open=true;await poll();assert.equal(reloads,0,'An open filter sheet must postpone an update');
+ ed.el('#filterDialog').open=false;await poll();assert.equal(reloads,1,'The pending update applies after closing');
  console.log('PASS: open dialogs postpone auto-update; a pending release applies after closing.');
 })().catch(e=>{console.error(e);process.exitCode=1;});

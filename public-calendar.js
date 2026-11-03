@@ -68,7 +68,10 @@ function renderPublicControls(){
  const months=state.view==='month'?[publicMonthResults(state.month)]:D.months.map((_,m)=>publicMonthResults(m));
  const found=months.some(r=>r.events.length||r.formats.length),filtered=state.query||state.filters.length;
  $('#clearSearch').hidden=!state.query;
- const toggleLabel=$('#mobileFiltersToggle>span');if(toggleLabel)toggleLabel.textContent='Направления'+(state.filters.length?' · '+state.filters.length:'');
+ $('#mobileMonthJump').value=state.view==='month'?String(state.month):'';
+ $('#filterSelectionCount').textContent=String(state.filters.length);$('#filterSelectionCount').hidden=!state.filters.length;
+ $('#mobileFiltersToggle').classList.toggle('has-selection',!!state.filters.length);
+ document.querySelectorAll('#filters [data-cat],#filters [data-festivals]').forEach(b=>{const key=b.dataset.cat||'festival';if(key==='all')return;const name=key==='festival'?'Фестивали':cats[key][0];b.setAttribute('aria-label',(filterSelected(key)?'Убрать фильтр ':'Добавить фильтр ')+name);});
  $('#resultNotice').hidden=!!found||!filtered;
  $('#resultNotice').innerHTML=found||!filtered?'':`<h2>${state.view==='month'?'В этом месяце ничего не найдено':'Ничего не найдено'}</h2><p>${state.query?`По запросу «${esc($('#search').value.trim())}»${state.filters.length?' в выбранных направлениях':''}.`:'В выбранных направлениях пока нет программы.'}</p><div>${state.view==='month'?'<button data-view="load">Посмотреть весь год</button>':''}${state.query?'<button data-clear-search>Очистить поиск</button>':''}<button data-reset-filters>Сбросить всё</button></div>`;
 }

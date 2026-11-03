@@ -32,7 +32,7 @@
   const editing=()=>document.activeElement?.matches('input,textarea,select,[contenteditable="true"]')||Date.now()-lastInput<2500;
   function apply(){
     if(!pending||document.visibilityState!=='visible')return;
-    if(document.querySelector('#detailDialog')?.open){say('Новая версия готова · обновим после закрытия карточки');return;}
+    if(document.querySelector('#detailDialog')?.open||document.querySelector('#filterDialog')?.open){say('Новая версия готова · обновим после закрытия окна');return;}
     if(editing()){say('Новая версия готова · обновим после ввода');return;}
     if(WORKING&&typeof loadStorageOK!=='undefined'&&!loadStorageOK){say('Новая версия готова · сначала скачайте расчёт');return;}
     try{

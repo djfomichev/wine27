@@ -439,18 +439,6 @@ body{font-size:16px;line-height:1.5}
 .team-calendar #monthSearchResults .search-event-list,.team-calendar #monthSearchResults .search-format-list{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
 @media(max-width:760px){.team-calendar #monthSearchResults .search-event-list,.team-calendar #monthSearchResults .search-format-list{grid-template-columns:minmax(0,1fr)}}
 
-.team-calendar .filters .mobile-filter-toggle{display:none}
-@media(max-width:760px){
- .team-calendar .filters .all-filter{order:-2;width:88px;min-width:88px;margin:0}
- .team-calendar .filters .mobile-filter-toggle{display:inline-flex;order:-1;width:calc(100% - 94px);margin:0;border-color:#000;min-height:46px;padding:10px 16px;font-size:16px;gap:16px}
- .team-calendar .filter-toggle-arrow{font-size:20px;line-height:16px;transform:translateY(-3px)}
- .team-calendar .mobile-filter-toggle[aria-expanded="true"] .filter-toggle-arrow{transform:rotate(180deg) translateY(-2px)}
- .team-calendar .filters:not(.filters-expanded)>button:not(.all-filter):not(.mobile-filter-toggle):not(.active){display:none}
- .team-calendar .filters .mobile-filter-toggle:focus-visible{outline-offset:3px}
-}
-
-
-
 /* One continuous filter panel, with inline reset and no density toolbar. */
 .team-calendar .controls{display:block;padding:18px 0 0;margin:0 0 18px;border:0}
 .team-calendar .controls .filters{gap:8px;align-items:center}
@@ -463,5 +451,51 @@ body{font-size:16px;line-height:1.5}
  .team-calendar .controls .filters{gap:6px}
  .team-calendar .filters>button{flex:0 0 auto}
  .team-calendar .filters #reset{display:inline-flex;flex-basis:44px;min-width:44px;width:44px;min-height:44px;font-size:25px}
- .team-calendar .filters:not(.filters-expanded)>#reset:not([hidden]){display:inline-flex}
 }
+
+/* Mobile: one control row, removable selections and a modal filter sheet. */
+.team-calendar .filters .mobile-filter-toggle,.team-calendar .mobile-month-jump{display:none}
+.team-calendar .filter-sheet{inset:auto 0 0;width:min(100%,480px);max-width:100%;max-height:calc(100dvh - 16px);margin:0 auto;padding:0;border:0;border-radius:24px 24px 0 0;background:#fff;color:#000;overflow:hidden;box-shadow:0 -8px 40px #0002}
+.team-calendar .filter-sheet[open]{display:grid;grid-template-rows:auto minmax(0,1fr) auto}
+.team-calendar .filter-sheet::backdrop{background:#002c22a6}
+.team-calendar .filter-sheet-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px 10px}
+.team-calendar .filter-sheet-header h2{margin:0;font:23px/1.2 HaussWide}
+.team-calendar .filter-sheet-close{width:44px;height:44px;padding:0;border:1px solid #0003;border-radius:50%;background:#fff;color:#000;font:28px/1 Hauss}
+.team-calendar .filter-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;overflow-y:auto;overscroll-behavior:contain;padding:2px 18px 18px}
+.team-calendar .filter-choices button{position:relative;display:flex;align-items:center;justify-content:flex-start;gap:9px;min-width:0;min-height:50px;padding:12px 14px;border:1px solid #0003;border-radius:14px;background:#fff;color:#000;font:16px/1.25 Hauss;text-align:left}
+.team-calendar .filter-choices .all-filter{grid-column:1/-1;justify-content:center;font:21px/1 HaussWide}
+.team-calendar .filter-choices [data-cat="expert"]{grid-column:1/-1}
+.team-calendar .filter-choices .dot{width:9px;height:9px;flex:none;margin:0;background:var(--cat);border-radius:50%}
+.team-calendar .filter-choices .festival-filter{background:var(--yellow);border-color:var(--yellow)}
+.team-calendar .filter-choices button.active{background:#000;color:white;border-color:#000}
+.team-calendar .filter-choices button.active .dot{visibility:hidden}
+.team-calendar .filter-choices .filter-check{display:block;position:absolute;left:12px;width:13px;font:17px/1 Hauss;opacity:0}
+.team-calendar .filter-choices button.active .filter-check{opacity:1}
+.team-calendar .filter-sheet-footer{display:block;margin:0;padding:12px 18px calc(18px + env(safe-area-inset-bottom));border-top:1px solid #0002}
+.team-calendar .filter-sheet-done{width:100%;min-height:48px;border:0;border-radius:24px;background:var(--green);color:white;font:17px/1.2 Hauss}
+.team-calendar .filter-sheet button:focus-visible{outline:3px solid var(--mint);outline-offset:2px}
+body.team-calendar:has(.filter-sheet[open]){overflow:hidden}
+@media(max-width:760px){
+ .team-calendar .mast{gap:8px;padding:12px;margin-top:10px}
+ .team-calendar .heading h1,.team-calendar .mast-year{font-size:24px}
+ .team-calendar .mast .mast-updated{display:none}
+ .team-calendar .controls{padding:10px 0 0;margin-bottom:12px}
+ .team-calendar .controls #filters{gap:6px;align-items:stretch}
+ .team-calendar #filters>button:not(.all-filter):not(.mobile-filter-toggle){order:3;max-width:100%;white-space:normal;text-align:left}
+ .team-calendar #filters>button:not(.all-filter):not(.mobile-filter-toggle):not(.active){display:none}
+ .team-calendar #filters .all-filter{order:0;flex:0 0 72px;min-width:72px;min-height:46px;padding:10px 12px;font-size:19px}
+ .team-calendar #filters .mobile-filter-toggle{display:inline-flex;order:1;flex:0 0 calc((100% - 84px)/2 - 4px);min-width:0;min-height:46px;padding:10px 6px;font-size:16px;gap:5px;border-color:#0003}
+ .team-calendar #filters .mobile-filter-toggle.has-selection{border-color:#000}
+ .team-calendar #filterSelectionCount{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 3px;border-radius:9px;background:#000;color:#fff;font:12px/1 Hauss}
+ .team-calendar #mobileMonthJump{display:block;order:2;flex:0 0 calc((100% - 84px)/2 + 4px);width:calc((100% - 84px)/2 + 4px);min-width:0;min-height:46px;padding:10px 22px 10px 10px;border:1px solid #0003;border-radius:24px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='m1 1 5 5 5-5' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 8px center;color:#000;font:16px/1.2 Hauss;appearance:none;-webkit-appearance:none}
+ .team-calendar #mobileMonthJump:focus-visible{outline:3px solid var(--green);outline-offset:3px}
+ .team-calendar #filters #reset{display:none}
+ .team-calendar #filters>button.active:not(.all-filter){padding-right:32px}
+ .team-calendar #filters>button.active:not(.all-filter) .filter-check{left:auto;right:10px;font-size:0;opacity:1}
+ .team-calendar #filters>button.active:not(.all-filter) .filter-check::after{content:'×';font:21px/1 Hauss}
+ .team-calendar #filters>button.active:not(.all-filter) .dot{visibility:visible}
+ .team-calendar .month-toolbar{display:none}
+}
+@media(max-width:350px){.team-calendar .heading h1,.team-calendar .mast-year{font-size:21px}.team-calendar .filter-choices{padding-left:12px;padding-right:12px;gap:6px}.team-calendar .filter-choices button{padding-left:12px;padding-right:10px;gap:7px;font-size:15px}.team-calendar .filter-choices .filter-check{left:10px}}
+
+@media(max-width:350px){.team-calendar #filters .all-filter{flex-basis:64px;min-width:64px}.team-calendar #filters .mobile-filter-toggle{flex-basis:calc((100% - 76px)/2 - 6px);padding-left:4px;padding-right:4px;gap:4px}.team-calendar #mobileMonthJump{flex-basis:calc((100% - 76px)/2 + 6px);width:calc((100% - 76px)/2 + 6px)}}
