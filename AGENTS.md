@@ -59,3 +59,13 @@ Team calendar header: omit the entire utility topbar, including the logo row, pr
 Separate project conversations: the user requires a visible new chat that they can open and continue. An internal sub-agent does not create that chat; never describe it as a completed new-chat request. State a missing chat-creation capability plainly.
 
 Team navigation has exactly 2 modes: «Год» (load) and «Месяц» (month). Year-map month headings and month selectors open the daily calendar directly. Resolve old public #year links to the year map and #load-month-N links to the corresponding daily month, including auto-update state. Preserve all events, dates, regular formats and rituals. Working-edition navigation and staffing details remain separate.
+
+## Continuity before changes
+
+The user requires every continuation to begin with an analysis of the work already completed. Before editing, inspect the latest user decisions, applicable source records, the current published revision and the relevant saved checkpoint. Preserve existing accepted work. Record the source and status of disputed content; a historical proposal or a prior assistant answer is not evidence of approval. Later direct user corrections take precedence. After changes, record what changed, why, where it was saved and what was actually verified live.
+
+## Names page
+
+/names/ is a separate mobile-first naming form, with a full desktop layout. Preserve its 16 place IDs, 48 inputs and localStorage key wine27.names.simple.v1. Do not restore the rejected multi-stage voting prototype. The reviewed examples are «Парусная» and «Бельведер», explicitly labelled «Прежние варианты». «Винный спуск» was rejected by the user for the example block. «Бельведер» belongs to the stairs to the wine school; it is not an additional place. «Ротонда» is the accepted base, with 1 additional word sought; «Белая ротонда» is rejected. Pier names remain earlier proposals; «18 закатов» is not an established local fact.
+
+Keep collection disabled until an authorized, working intake exists. Do not simulate server receipt. The CSV download and participant card remain available. Preserve existing image captions that distinguish project visualizations and uncertain location matches. For names-only edits, preserve the main calendar release and publish names/index.html with its matching names/version.json atomically. Verify mobile and desktop rendering, retained drafts, and the deployed names version.
