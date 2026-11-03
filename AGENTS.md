@@ -57,3 +57,5 @@ Presentation weather copy: do not render seasonal operating instructions, indoor
 Team calendar header: omit the entire utility topbar, including the logo row, print/fullscreen/info buttons and visible auto-update status. The «Год города 2027» heading links to the initial year map, clears navigation filters/search and scrolls to the top. Automatic updates must continue without the status element. Keep working-edition controls and the existing private access intact.
 
 Separate project conversations: the user requires a visible new chat that they can open and continue. An internal sub-agent does not create that chat; never describe it as a completed new-chat request. State a missing chat-creation capability plainly.
+
+Team navigation has exactly 2 modes: «Год» (load) and «Месяц» (month). Year-map month headings and month selectors open the daily calendar directly. Resolve old public #year links to the year map and #load-month-N links to the corresponding daily month, including auto-update state. Preserve all events, dates, regular formats and rituals. Working-edition navigation and staffing details remain separate.

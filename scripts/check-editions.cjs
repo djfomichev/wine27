@@ -5,7 +5,7 @@ function edition(working){
  const ctx={window:{addEventListener(){},scrollTo(){}},document:{querySelector:el,querySelectorAll:()=>[],addEventListener:(k,f)=>(handlers[k]??=[]).push(f),createElement:()=>({click(){}})},localStorage:{getItem(){return null},setItem(){}},location:{hash:'',pathname:working?'/work/':'/'},setTimeout:()=>{},URL,Blob,console};vm.createContext(ctx);
  const prefix=working?'private-work/':'';
  for(const p of [prefix+'data',prefix+'expert-data',prefix+'planning-data','load','expert','plan','program-guide','public-view','public-calendar','production','app'])vm.runInContext(fs.readFileSync(p+'.js','utf8'),ctx);
- return {ctx,el,run:s=>vm.runInContext(s,ctx)};
+ return {ctx,el,handlers,run:s=>vm.runInContext(s,ctx)};
 }
 const pub=edition(false),work=edition(true);
 const plain=x=>JSON.parse(JSON.stringify(x));
@@ -27,10 +27,13 @@ assert.match(pub.el('#detailContent').innerHTML,/Кабаре «Шум»/);
 assert.match(pub.el('#detailContent').innerHTML,/23 января/);
 assert.match(pub.el('#detailContent').innerHTML,/Театрально-музыкальный резидент/);
 for(let m=0;m<12;m++){
- pub.run(`setView('loadMonth',${m})`);let html=pub.el('#loadMonthView').innerHTML;
- assert.match(html,/Регулярная программа/);assert.doesNotMatch(html,internal,'public month '+m);
+ const monthButton={dataset:{loadMonth:String(m)}};
+ for(const click of pub.handlers.click)click({target:{closest:()=>monthButton}});
+ assert.equal(pub.run('state.view'),'month');assert.equal(pub.run('state.month'),m);
+ assert.equal(pub.el('#monthView').hidden,false);assert.equal(pub.el('#loadMonthView').hidden,true);
+ let html=pub.el('#monthGrid').innerHTML+pub.el('#mobileAgenda').innerHTML+pub.el('#monthAside').innerHTML;
+ assert.match(html,/data-city-day=/);assert.doesNotMatch(html,internal,'public month '+m);
  assert.doesNotMatch(html,/team-planner|mechanics-team|mechanics-launch|data-rhythm|month-production/);
- pub.run(`setView('month',${m})`);assert.doesNotMatch(pub.el('#monthAside').innerHTML,internal,'calendar aside '+m);
  pub.run(`showTheme(${m})`);assert.doesNotMatch(pub.el('#detailContent').innerHTML,internal,'theme '+m);
  work.run(`setView('loadMonth',${m})`);html=work.el('#loadMonthView').innerHTML;
  assert.match(html,/Рассчитать команду/);assert.match(html,/Готовим к запуску|После готовности проекта/);
@@ -71,8 +74,9 @@ assert.doesNotMatch(publicHTML, /<button data-view="(?:projects|expert)"/);
 pub.run('setView("projects")');assert.equal(pub.run('state.view'),'load');
 pub.run('setView("expert")');assert.equal(pub.run('state.view'),'load');
 pub.run('state.category="all";state.query="";state.festivalsOnly=false;setView("loadMonth",7)');
-assert.match(pub.el('#loadMonthView').innerHTML,/Городские ритуалы/);
-assert.doesNotMatch(pub.el('#loadMonthView').innerHTML,/После открытия проекта|Готовим к запуску|Сервисы города|Сроки на согласовании/);
+assert.equal(pub.run('state.view'),'month');
+assert.match(pub.el('#monthGrid').innerHTML,/data-city-day="2027-08-12"/);
+assert.doesNotMatch(pub.el('#monthAside').innerHTML,/После открытия проекта|Готовим к запуску|Сервисы города|Сроки на согласовании/);
 for(const id of ['bell','flash','ritual'])assert(pub.run('publicDailyFormats("2027-08-12").some(r=>r.rhythmId==="'+id+'")'));
 assert.equal(pub.run('publicDailyFormats("2027-01-09").every(r=>r.rhythmId==="radio")'),true);
 assert.equal(pub.run('publicDailyFormats("2027-08-14").some(r=>r.rhythmId==="bar")'),false);
@@ -97,3 +101,21 @@ assert.equal(work.run('productionMonthData(9).lead.some(r=>r.projectId==="award"
 assert.equal(work.run('productionMonthData(9).lead.some(r=>r.projectId==="wineweek")'),true);
 work.run('setView("loadMonth",9)');assert.match(work.el('#loadMonthView').innerHTML,/Команда месяца/);assert.match(work.el('#loadMonthView').innerHTML,/HURMA/);
 console.log('PASS: all 16 expert entries have proposed dates, HURMA roles resolve, exhibition overlaps identified, and Wine Week/Award production counted once.');
+
+// Year/month navigation, old bookmarks and an automatic update keep the same program.
+const nav=publicHTML.match(/<nav class="views city-calendar-views"[\s\S]*?<\/nav>/)[0];
+assert.deepEqual([...nav.matchAll(/data-view="([^"]+)"/g)].map(m=>m[1]),['load','month']);
+assert.match(nav,/nav-label-wide">Год<\/span>/);
+assert.match(fs.readFileSync('expert.css','utf8'),/\.views\.city-calendar-views\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)\}/);
+const before=plain(pub.run('calendarItems().map(e=>[e.id,e.start,e.end])'));
+pub.run('state.category="music";state.query="джаз";location.hash="#load-month-8";readHash()');
+assert.equal(pub.run('state.view'),'month');assert.equal(pub.run('state.month'),7);
+assert.equal(pub.run('state.category'),'music');assert.equal(pub.run('state.query'),'джаз');
+pub.el('#backYear').onclick();assert.equal(pub.run('state.view'),'load');
+pub.run('location.hash="#year";readHash()');assert.equal(pub.run('state.view'),'load');
+pub.run('state.view="loadMonth";state.month=9;render()');assert.equal(pub.run('state.view'),'month');assert.equal(pub.run('state.month'),9);
+for(const change of pub.handlers.change)change({target:{dataset:{jumpView:'load'},value:'6'}});
+assert.equal(pub.run('state.view'),'month');assert.equal(pub.run('state.month'),6);
+assert.deepEqual(plain(pub.run('calendarItems().map(e=>[e.id,e.start,e.end])')),before);
+work.run('setView("year")');assert.equal(work.run('state.view'),'year');
+console.log('PASS: 2 team views; all 12 month cards, mobile selector, legacy bookmarks and restored state open the daily calendar; event dates and working navigation preserved.');

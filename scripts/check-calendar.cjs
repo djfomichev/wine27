@@ -141,7 +141,7 @@ assert.match(el('#loadView').innerHTML,/id="load-month-11"/);
 assert.match(el('#loadView').innerHTML,/data-jump-view="load"/);
 check('setView("year")');assert.match(el('#calendarJump').innerHTML,/data-jump-view="year"/);
 const html=fs.readFileSync('index.html','utf8');
-assert.equal((html.match(/class="nav-label-mobile"/g)||[]).length,3);
+assert.equal((html.match(/class="nav-label-mobile"/g)||[]).length,2);
 assert.match(fs.readFileSync('expert.css','utf8'),/env\(safe-area-inset-bottom\)/);
 console.log('PASS: large default, 12 month jump targets, mobile navigation labels and dated phone agenda.');
 

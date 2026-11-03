@@ -237,7 +237,7 @@ body{font-size:16px;line-height:1.5}
 .city-rhythm-dates{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:24px}.city-rhythm-dates button{display:flex;flex-direction:column;gap:8px;align-items:flex-start;text-align:left;border:1px solid var(--line);background:#fff;border-radius:10px;padding:16px}.city-rhythm-dates b{font:28px/1 HaussWide;color:var(--green)}.city-rhythm-dates span{font-size:14px}
 .city-mobile-day .mobile-date-range small{display:block;font:14px Hauss;margin-top:5px}
 @media(max-width:1100px){.city-rituals .mechanics-grid{grid-template-columns:minmax(0,1fr)}}
-@media(max-width:760px){.views.city-calendar-views{grid-template-columns:repeat(3,minmax(0,1fr))}.city-rituals{padding:20px 14px}.city-rituals>.section-heading{align-items:flex-start;gap:8px;flex-direction:column}.city-rhythm-dates{grid-template-columns:repeat(2,minmax(0,1fr))}.city-day-item{padding:18px}.city-day-item b{font-size:20px}.city-day-item span{font-size:16px}}
+@media(max-width:760px){.views.city-calendar-views{grid-template-columns:repeat(2,minmax(0,1fr))}.city-rituals{padding:20px 14px}.city-rituals>.section-heading{align-items:flex-start;gap:8px;flex-direction:column}.city-rhythm-dates{grid-template-columns:repeat(2,minmax(0,1fr))}.city-day-item{padding:18px}.city-day-item b{font-size:20px}.city-day-item span{font-size:16px}}
 .month-dated{margin:34px 0 42px}.month-dated>.section-heading{margin-bottom:20px}
 .month-dated-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 28px}
 .month-dated-grid .work-event{margin:0;min-width:0}
