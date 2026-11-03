@@ -51,3 +51,5 @@ Canonical sources are locally in private-work/data.js, private-work/expert-data.
 Build sequence: scripts/build-public.py, scripts/stamp-version.py, scripts/protect-work.py --key-file PATH, syntax checks, scripts/check-calendar.cjs, scripts/check-editions.cjs and scripts/check-protection.cjs PATH. Root data files are generated from private sources; update clean editorial overrides when program facts change.
 
 Stamp and publish both pages and version files, encrypted payload and shared UI assets together. After deployment verify both editions and confirm work/data.js, work/planning-data.js and work/expert-data.js return 404. The presentation auto-update must never write the working staffing scenario.
+
+Presentation weather copy: do not render seasonal operating instructions, indoor/outdoor fallback descriptions, weather thresholds or start-time rationale on the main team calendar. Keep weather planning in the encrypted working edition. Preserve concrete event venues, times and public holiday dates.

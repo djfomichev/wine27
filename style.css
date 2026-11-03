@@ -417,3 +417,7 @@ dialog::backdrop{background:#004632a6;backdrop-filter:blur(4px)}
 .event-mini.proposed .dot{background:transparent;border:1px solid currentColor;width:5px;height:5px}
 @media(min-width:1350px){.atlas-compact .regular-more{display:block;font-size:10px;padding-top:5px}.atlas-compact .overview-group{margin-bottom:5px}}
 @media(max-width:760px){.event-mini.proposed .dot{display:inline-block}}
+
+/* The team calendar keeps only dates and program information in month summaries. */
+.month-bottom .month-open{margin-left:auto}
+.load-month-summary.without-note{grid-template-columns:repeat(3,minmax(0,1fr))}

@@ -28,6 +28,7 @@ themes=[
 for i,m in enumerate(D['months']):
     m['themeDetail']=themes[i]
     m['expertWork']=''
+    m.pop('weather',None)
 
 overrides={
  'project-67':'Главная вечеринка города: артисты и диджеи, RML, ACT, Odyssey, Personality, ведущие промогруппы России и локальная южная сцена.\n\nПлощадь вокруг бара: музыканты, столики и уютная посадка по образцу итальянской площади. В июле и августе по 1 большой вечеринке с артистами из Москвы.',
@@ -73,6 +74,8 @@ overrides.update({
 })
 for e in D['events']+D['projects']:
     e['description']=overrides.get(e['id'],e.get('description',''))
+    for note in ['\n\nОсновная программа проходит в помещениях, дневные события на улице — по погоде.', ' Уличные события зависят от погоды.', ' Программу ориентируем на более взрослую аудиторию сентября. Уличные события постепенно начинаются раньше, с учётом погоды.', '\n\nВ жаркие месяцы выступления начинаются позже, в прохладные — раньше или в помещениях.']:
+        e['description']=e['description'].replace(note,'')
     e['planningNotes']=''
     for key in ['previousDateRange','sourceDateLabel','directorPlan']:e.pop(key,None)
     if e.get('start'):e['dateLabel']=''
@@ -103,7 +106,9 @@ for r in P['recurring']:
     r['description']=source.get('description','')
     r['exceptions']='';r['production']=''
     r.pop('previousSummerWindows',None)
-    for p in r['periods']:p['condition']=''
+    for p in r['periods']:
+        p['condition']=''
+        if isinstance(p.get('time'),str):p['time']=p['time'].replace(' при подходящей погоде','')
 for p in P['embedded']:
     descriptions={
       'rotunda_big_dance':'Ежегодный вечер Ротонды: танцы для гостей и команды города.',
