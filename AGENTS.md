@@ -54,7 +54,7 @@ Stamp and publish both pages and version files, encrypted payload and shared UI 
 
 Presentation weather copy: do not render seasonal operating instructions, indoor/outdoor fallback descriptions, weather thresholds or start-time rationale on the main team calendar. Keep weather planning in the encrypted working edition. Preserve concrete event venues, times and public holiday dates.
 
-Team calendar header: omit the entire utility topbar, including the logo row, print/fullscreen/info buttons and visible auto-update status. The «Год города 2027» heading links to the initial year map, clears navigation filters/search and scrolls to the top. Automatic updates must continue without the status element. Keep working-edition controls and the existing private access intact.
+Team calendar header: omit the entire utility topbar, including the logo row, print/fullscreen/info buttons and visible auto-update status. The «Пульс города 2027» heading links to the initial year map, clears navigation filters/search and scrolls to the top. Automatic updates must continue without the status element. Keep working-edition controls and the existing private access intact.
 
 Separate project conversations: the user requires a visible new chat that they can open and continue. An internal sub-agent does not create that chat; never describe it as a completed new-chat request. State a missing chat-creation capability plainly.
 
@@ -75,3 +75,5 @@ Keep collection disabled until an authorized, working intake exists. Do not simu
 The user removed the hero paragraph «16 мест. По 3 идеи. Начните с любого.». Do not restore it or add replacement introductory copy unless requested.
 
 Team calendar filters: «ВСЕ» is the first, larger control. Filters are independent additive selections: clicking adds/removes only that filter; combining categories and «Фестивали» shows their union without duplicate events. «ВСЕ» clears the selection; selecting none also shows all. Preserve selections across year/month navigation and automatic updates, including migration from the former single category. The public year map omits the color legend and the entire undated-events strip («События без точной даты» / «Конкурс названий города»); preserve source projects and the separate /names/ page.
+
+The internal project name is «Пульс города 2027», including the site title, calendar masthead and working edition. The public masthead is compact: one title, update date, two compact navigation controls and search. Keep filters in their own stable row with room for reset, and avoid a separate release-date band. Regular programs follow the events in each month; do not push them to the bottom with an automatic spacer. Preserve the current branding, multi-select behavior and all program sources.
