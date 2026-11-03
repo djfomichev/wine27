@@ -260,3 +260,47 @@ body{font-size:16px;line-height:1.5}
 @media(max-width:900px){.mechanics-grid,.month-dated-grid{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:760px){.month-dated{margin:28px 0 34px}.month-dated>.section-heading{align-items:flex-start;gap:14px;flex-direction:column}.month-dated h3,.mechanics-section>h3{font-size:27px}.mechanics-section{margin:34px 0}.program-mechanic{padding:24px 20px}.program-mechanic h4{font-size:24px}.program-mechanic p{font-size:17px}.program-mechanic .mechanic-when{font-size:18px}.mechanic-roles>div{grid-template-columns:minmax(0,1fr);gap:3px}.mechanic-roles dt{font-size:14px}.mechanic-details>summary{font-size:16px}.public-program-dates{gap:5px 14px}.public-program-dates button{font-size:16px}.mechanics-team>summary{font-size:22px}}
 @media print{.mechanics-grid,.month-dated-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.program-mechanic{break-inside:avoid;padding:14px}.program-mechanic h4{font-size:18px}.program-mechanic p{font-size:13px}.mechanic-status{font-size:10px}.program-mechanic>button{display:none}}
+
+/* The public month uses the same full-width field as its theme. */
+.team-calendar .month-layout{grid-template-columns:minmax(0,1fr);gap:24px}
+.team-calendar #monthAside{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.team-calendar #monthAside:empty{display:none}
+.team-calendar .month-toolbar{margin:12px 0 16px;gap:16px}
+.team-calendar .month-switch{position:relative;display:flex;gap:10px;flex-wrap:nowrap;align-items:center}
+.team-calendar .month-switch h2{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.team-calendar #prevMonth{order:0;flex:none}
+.team-calendar #nextMonth{order:2;flex:none}
+.team-calendar #monthSelect{order:1;width:240px;max-width:100%;min-height:52px;padding:6px 36px 6px 12px;border:0;border-radius:10px;background-color:#fff;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%23004632' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;-webkit-appearance:none;appearance:none;font:700 30px/1.2 HaussWide,sans-serif;cursor:pointer}
+.team-calendar #monthSelect:hover{background-color:var(--cream)}
+.team-calendar .month-theme-hero{margin:0 0 20px;padding:16px 24px 20px;border-radius:16px}
+.team-calendar .month-theme-hero .month-theme-caption{font-size:13px;margin-bottom:6px}
+.team-calendar .month-theme-hero>b{font-size:30px;line-height:1.18}
+.team-calendar .weekdays{padding:12px 0;border-radius:16px 16px 0 0}
+.team-calendar .day{display:flex;flex-direction:column;gap:6px;min-width:0;min-height:168px;padding:10px}
+.team-calendar .day-number{font-size:23px;line-height:1.2;min-height:28px;align-items:baseline}
+.team-calendar .day-status{font-size:11px;line-height:1.3;text-align:right}
+.team-calendar .day-holiday{margin:0;font-size:11px;line-height:1.3}
+.team-calendar .day-event{margin:0;min-height:36px;padding:7px 8px;font-size:13px;line-height:1.3;flex:none}
+.team-calendar .day-event .festival-badge,.team-calendar .day-event .format-badge{font-size:10px;line-height:1.2;margin-bottom:3px}
+.team-calendar .daily-program-button{display:flex;flex-direction:row;align-items:center;flex-wrap:wrap;gap:3px 8px;margin-top:auto;padding:7px 8px;min-height:36px;flex:none}
+.team-calendar .daily-program-button b{font:12px/1.3 HaussWide}
+.team-calendar .daily-program-button span{font:11px/1.3 Hauss}
+.team-calendar .day.blank{background:#f8faf9}
+@media(min-width:761px) and (max-width:1100px){
+ .team-calendar .day{padding:7px;gap:5px}
+ .team-calendar .day-number{font-size:21px;flex-wrap:wrap}
+ .team-calendar .day-status,.team-calendar .day-holiday{font-size:10px}
+ .team-calendar .day-event{font-size:12px;padding:7px 6px}
+ .team-calendar .daily-program-button{padding:7px 6px}
+ .team-calendar #monthAside{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:760px){
+ .team-calendar .month-toolbar{margin:12px 0 16px;gap:8px}
+ .team-calendar .month-switch{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;gap:8px;width:100%}
+ .team-calendar #monthSelect{width:100%;max-width:none;min-height:48px;font-size:25px;padding-left:10px;padding-right:30px}
+ .team-calendar .month-toolbar>.plain{align-self:flex-end;min-height:40px;font-size:14px}
+ .team-calendar .month-theme-hero{margin:0 0 18px;padding:16px 18px 20px}
+ .team-calendar .month-theme-hero>b{font-size:27px}
+ .team-calendar .month-theme-hero .month-theme-caption{font-size:12px}
+ .team-calendar #monthAside{grid-template-columns:minmax(0,1fr);gap:16px}
+}
