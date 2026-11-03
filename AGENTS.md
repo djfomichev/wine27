@@ -53,3 +53,7 @@ Build sequence: scripts/build-public.py, scripts/stamp-version.py, scripts/prote
 Stamp and publish both pages and version files, encrypted payload and shared UI assets together. After deployment verify both editions and confirm work/data.js, work/planning-data.js and work/expert-data.js return 404. The presentation auto-update must never write the working staffing scenario.
 
 Presentation weather copy: do not render seasonal operating instructions, indoor/outdoor fallback descriptions, weather thresholds or start-time rationale on the main team calendar. Keep weather planning in the encrypted working edition. Preserve concrete event venues, times and public holiday dates.
+
+Team calendar header: omit the entire utility topbar, including the logo row, print/fullscreen/info buttons and visible auto-update status. The «Год города 2027» heading links to the initial year map, clears navigation filters/search and scrolls to the top. Automatic updates must continue without the status element. Keep working-edition controls and the existing private access intact.
+
+Separate project conversations: the user requires a visible new chat that they can open and continue. An internal sub-agent does not create that chat; never describe it as a completed new-chat request. State a missing chat-creation capability plainly.

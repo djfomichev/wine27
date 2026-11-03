@@ -421,3 +421,9 @@ dialog::backdrop{background:#004632a6;backdrop-filter:blur(4px)}
 /* The team calendar keeps only dates and program information in month summaries. */
 .month-bottom .month-open{margin-left:auto}
 .load-month-summary.without-note{grid-template-columns:repeat(3,minmax(0,1fr))}
+
+/* Primary calendar navigation, without a separate utility header. */
+.mast-home{color:inherit;text-decoration:none;border-radius:8px}
+.mast-home:focus-visible{outline:3px solid var(--yellow);outline-offset:8px}
+.team-calendar .mast{margin-top:20px}
+@media(max-width:760px){.team-calendar .mast{margin-top:12px}}
