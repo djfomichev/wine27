@@ -398,7 +398,6 @@ body{font-size:16px;line-height:1.5}
 .team-calendar .filters button:focus-visible{outline:3px solid var(--green);outline-offset:3px}
 .team-calendar .control-meta{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:44px}
 .team-calendar .filter-summary{display:flex;align-items:center;gap:16px;min-width:0;font-size:14px;line-height:1.4}
-.team-calendar #filterFeedback{color:#505652}
 .team-calendar #reset{width:auto;flex:none;font-size:14px;min-height:44px;padding:8px 0;text-decoration:underline;text-underline-offset:4px}
 .team-calendar #calendarDensity{background:#f1f2ee;border:1px solid #00000016;padding:3px;border-radius:26px;gap:2px}
 .team-calendar #calendarDensity button{min-height:40px;padding:8px 18px;font:15px/1.2 Hauss;border-radius:22px;white-space:nowrap}
@@ -457,3 +456,10 @@ body{font-size:16px;line-height:1.5}
  .team-calendar .filters:not(.filters-expanded)>button:not(.all-filter):not(.mobile-filter-toggle):not(.active){display:none}
  .team-calendar .filters .mobile-filter-toggle:focus-visible{outline-offset:3px}
 }
+
+/* Controls only: omit counters and instructional filler below the filters. */
+.team-calendar .control-meta{justify-content:flex-end}
+.team-calendar .filter-summary{width:auto;min-height:0;margin-right:auto}
+.team-calendar .filter-summary:has(#reset[hidden]){display:none}
+.team-calendar .control-meta:has(#reset[hidden]):has(#calendarDensity[hidden]){display:none}
+@media(max-width:760px){.team-calendar .control-meta{flex-wrap:nowrap}.team-calendar .filter-summary{width:auto;min-height:0}}

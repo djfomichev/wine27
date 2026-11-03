@@ -66,10 +66,7 @@ function publicSearchYear(){
 function renderPublicControls(){
  if(WORKING)return;
  const months=state.view==='month'?[publicMonthResults(state.month)]:D.months.map((_,m)=>publicMonthResults(m));
- const eventIds=new Set(months.flatMap(r=>r.events.map(e=>e.id))),formatIds=new Set(months.flatMap(r=>r.formats.map(e=>e.id)));
- const found=eventIds.size+formatIds.size,filtered=state.query||state.filters.length;
- const counts=[calendarCount(eventIds.size,'событие','события','событий'),calendarCount(formatIds.size,'регулярный формат','регулярных формата','регулярных форматов')].join(' · ');
- $('#filterFeedback').textContent=filtered?(found?counts:'Совпадений нет'):'Можно выбрать несколько направлений';
+ const found=months.some(r=>r.events.length||r.formats.length),filtered=state.query||state.filters.length;
  $('#clearSearch').hidden=!state.query;
  const toggleLabel=$('#mobileFiltersToggle>span');if(toggleLabel)toggleLabel.textContent='Направления'+(state.filters.length?' · '+state.filters.length:'');
  $('#calendarDensity').hidden=state.view!=='load';
