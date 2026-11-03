@@ -160,3 +160,42 @@ restore({filters:['wine','music','wine','unknown'],view:'month',month:4});
 assert.deepEqual(plain(pub.run('state.filters')),['wine','music']);assert.equal(pub.run('state.view'),'month');
 assert.match(fs.readFileSync('auto-update.js','utf8'),/filters:state.filters/);
 console.log('PASS: additive filter toggles, independent removal, festival/category union, no duplicates, search, navigation, reset and update migration; public legend and undated strip removed.');
+
+// Public search must expose every matching recurring format and nested event.
+pub.run('resetCalendarFilters();state.query="книжный";setView("load")');
+assert.equal(pub.run('publicSearchMonths().length'),12);
+assert.match(pub.el('#loadView').innerHTML,/data-city-rhythm="book_club"/);
+assert.doesNotMatch(pub.el('#loadView').innerHTML,/Нет программы по фильтру/);
+pub.run('state.query="";state.filters=["art"]');
+assert.match(pub.run('JSON.stringify(publicRegularPreview(4))'),/Кино и обсуждения.*Лекции и встречи.*Книжный клуб/);
+pub.run('state.filters=[];state.query="вино недели";render()');
+assert.match(pub.el('#loadView').innerHTML,/Вино недели/);
+assert.doesNotMatch(pub.el('#loadView').innerHTML,/Клуб Соловьёва, виноделы/);
+pub.run('state.query="Соловьева".toLocaleLowerCase("ru");render()');assert(pub.run('publicSearchMonths().length')>0);
+for(const item of pub.run('D.embedded.filter(e=>e.scale!=="major")')){
+ pub.run('state.query='+JSON.stringify(item.title.toLocaleLowerCase('ru'))+';render()');
+ assert(pub.run('publicSearchMonths().some(r=>r.events.some(e=>e.id==='+JSON.stringify(item.id)+'))'),item.id);
+}
+pub.run('state.query="абракадабра";render()');assert.equal(pub.run('publicSearchMonths().length'),0);
+assert.equal(pub.el('#resultNotice').hidden,false);assert.match(pub.el('#resultNotice').innerHTML,/Ничего не найдено/);
+assert.doesNotMatch(pub.el('#loadView').innerHTML,/overview-month|data-holiday/);
+pub.run('setView("month",4)');assert.equal(pub.run('publicMobileCalendar(4)'), '');
+assert.equal(pub.el('.month-layout').hidden,true);
+pub.run('state.query="диджейские резиденции";render()');assert.match(pub.el('#monthSearchResults').innerHTML,/data-city-rhythm="djs"/);
+pub.run('showPublicRhythm("djs",4)');assert.match(pub.el('#detailContent').innerHTML,/Период программы/);
+pub.run('state.query="джаз";showPublicRhythm("jazz",4)');assert.match(pub.el('#detailContent').innerHTML,/data-event="slot-jazz-/);
+pub.run('state.query="колокол";showPublicRhythm("bell",4)');assert.equal((pub.el('#detailContent').innerHTML.match(/data-city-day=/g)||[]).length,31);
+pub.run('clearCalendarSearch()');assert.equal(pub.el('.month-layout').hidden,false);assert.equal(pub.el('#monthSearchResults').hidden,true);
+console.log('PASS: all recurring categories, exact titles, ё/е search, nested events, honest empty state, month search, seasonal periods and dated slots.');
+// Publishing a new release must not interrupt a reader inside a dialog.
+(async()=>{
+ const ed=edition(false),original=ed.ctx.document.querySelector;let poll,reloads=0;
+ ed.ctx.document.querySelector=s=>s==='meta[name="wine27-version"]'?{content:'1111111111111111'}:original(s);
+ ed.ctx.document.getElementById=id=>ed.el('#'+id);ed.ctx.document.visibilityState='visible';ed.ctx.document.activeElement={matches:()=>false};
+ ed.ctx.sessionStorage={getItem:()=>null,setItem(){}};ed.ctx.setInterval=f=>{poll=f;};ed.ctx.location.href='https://wine27.ru/';ed.ctx.location.replace=()=>{reloads++;};
+ ed.ctx.fetch=async url=>({ok:true,json:async()=>({version:'2222222222222222'}),text:async()=>'<meta name="wine27-version" content="2222222222222222">'});
+ vm.runInContext(fs.readFileSync('auto-update.js','utf8'),ed.ctx);
+ ed.el('#detailDialog').open=true;await poll();assert.equal(reloads,0,'An open event dialog must postpone an update');
+ ed.el('#detailDialog').open=false;await poll();assert.equal(reloads,1,'The pending update applies after closing');
+ console.log('PASS: open dialogs postpone auto-update; a pending release applies after closing.');
+})().catch(e=>{console.error(e);process.exitCode=1;});

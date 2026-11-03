@@ -42,15 +42,40 @@ function publicRhythmSummary(r,m){
  return labels[r.id]||r.dayLabel;
 }
 function publicRegularPreview(m){
- const formats=publicFormats(m),names=(ids)=>formats.filter(r=>ids.includes(r.id)).map(r=>publicRhythmItem(r).title);
- const music=names(['bar','stage','cabaret','jazz','hall','cinematica','noise','beach','rooftop']);
- const lines=[];
- if(music.length)lines.push({title:'Музыка',text:music.slice(0,3).join(', ')+(music.length>3?' и ещё '+(music.length-3):'')});
- const wine=names(['wineclub','winemaker_in_city','wine_week']);if(wine.length)lines.push({title:'Вино',text:'Клуб Соловьёва, виноделы и подборки'});
- const rituals=formats.filter(r=>publicRitualIds.has(r.id));if(rituals.length)lines.push({title:'Ритуалы',text:rituals.map(r=>({bell:'колокол',flash:'флешмоб',ritual:'Wine o’clock'})[r.id]).join(' · ')});
- if(formats.some(r=>r.id==='dance'))lines.push({title:'Танцы',text:'сальса и румба по будням'});
- if(formats.some(r=>r.id==='radio'))lines.push({title:'Радио',text:m>=4&&m<=8?'ежедневно':'по выходным'});
- return lines;
+ const groups=new Map();
+ for(const r of publicFormats(m)){
+  const item=publicRhythmItem(r),label=publicRitualIds.has(r.id)?'Ритуалы':cat(item)[0];
+  if(!groups.has(label))groups.set(label,[]);
+  groups.get(label).push(item.title);
+ }
+ return [...groups].map(([title,names])=>({title,text:names.slice(0,3).join(', ')+(names.length>3?' и ещё '+(names.length-3):'')}));
+}
+function publicMonthResults(m){
+ const events=new Map([...monthEvents(m),...D.projects.filter(e=>projectInMonth(e,m)&&matches(e))].map(e=>[e.id,e]));
+ for(const p of expertMonthProjects(m))if(!events.has(p.id)&&matches({...p,category:'expert',description:p.subtitle})){const item=planningItem(p.id);if(item)events.set(p.id,item);}
+ return {month:m,events:[...events.values()],formats:publicFormats(m)};
+}
+function publicSearchMonths(){return D.months.map((_,m)=>publicMonthResults(m)).filter(r=>r.events.length||r.formats.length);}
+function publicMonthSearch(m){
+ const {events,formats}=publicMonthResults(m);
+ return `${events.length?`<section class="month-search-events"><h3>Найденные события</h3><div class="search-event-list">${events.map(e=>overviewEvent(e,m)).join('')}</div></section>`:''}${formats.length?`<section class="month-search-formats"><h3>Регулярная программа</h3><div class="search-format-list">${formats.map(r=>`<button data-city-rhythm="${esc(r.id)}" data-city-month="${m}"><b>${esc(publicRhythmItem(r).title)}</b><span>${esc(publicRhythmSummary(r,m))} ↗</span></button>`).join('')}</div></section>`:''}`;
+}
+function publicSearchYear(){
+ return `<div class="overview-grid atlas-${state.density==='detail'?'detail':'compact'} search-grid">${publicSearchMonths().map(({month:m,events,formats})=>`<article class="overview-month" aria-label="${esc(D.months[m].name)}"><header><button data-load-month="${m}" aria-label="${esc(D.months[m].name)}: открыть программу месяца"><span class="atlas-month-number">${String(m+1).padStart(2,'0')}</span><h3>${esc(D.months[m].name)}</h3><span class="atlas-month-open" aria-hidden="true">↗</span></button></header>${monthThemeCard(m)}${events.length?`<section class="search-event-list" aria-label="Найденные события">${events.map(e=>overviewEvent(e,m)).join('')}</section>`:''}${formats.length?`<section class="search-format-list" aria-label="Найденная регулярная программа"><h4>Регулярная программа</h4>${formats.map(r=>`<button data-city-rhythm="${esc(r.id)}" data-city-month="${m}"><b>${esc(publicRhythmItem(r).title)}</b><span>${esc(publicRhythmSummary(r,m))} <i aria-hidden="true">↗</i></span></button>`).join('')}</section>`:''}</article>`).join('')}</div>`;
+}
+function renderPublicControls(){
+ if(WORKING)return;
+ const months=state.view==='month'?[publicMonthResults(state.month)]:D.months.map((_,m)=>publicMonthResults(m));
+ const eventIds=new Set(months.flatMap(r=>r.events.map(e=>e.id))),formatIds=new Set(months.flatMap(r=>r.formats.map(e=>e.id)));
+ const found=eventIds.size+formatIds.size,filtered=state.query||state.filters.length;
+ const counts=[calendarCount(eventIds.size,'событие','события','событий'),calendarCount(formatIds.size,'регулярный формат','регулярных формата','регулярных форматов')].join(' · ');
+ $('#filterFeedback').textContent=filtered?(found?counts:'Совпадений нет'):'Можно выбрать несколько направлений';
+ $('#clearSearch').hidden=!state.query;
+ const toggleLabel=$('#mobileFiltersToggle>span');if(toggleLabel)toggleLabel.textContent='Направления'+(state.filters.length?' · '+state.filters.length:'');
+ $('#calendarDensity').hidden=state.view!=='load';
+ document.querySelectorAll('[data-density]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.density===state.density)));
+ $('#resultNotice').hidden=!!found||!filtered;
+ $('#resultNotice').innerHTML=found||!filtered?'':`<h2>${state.view==='month'?'В этом месяце ничего не найдено':'Ничего не найдено'}</h2><p>${state.query?`По запросу «${esc($('#search').value.trim())}»${state.filters.length?' в выбранных направлениях':''}.`:'В выбранных направлениях пока нет программы.'}</p><div>${state.view==='month'?'<button data-view="load">Посмотреть весь год</button>':''}${state.query?'<button data-clear-search>Очистить поиск</button>':''}<button data-reset-filters>Сбросить всё</button></div>`;
 }
 function publicCalendarProgram(m){
  const list=publicFormats(m).filter(r=>!r.calendarVisible);
@@ -97,12 +122,18 @@ function publicDailyFormats(date){
  return result;
 }
 function calendarCount(n,one,few,many){const last=n%10,teen=n%100;return `${n} ${teen>=11&&teen<=14?many:last===1?one:last>=2&&last<=4?few:many}`;}
-function publicDayButton(date){const rows=publicDailyFormats(date);if(!rows.length)return '';const ritual=rows.filter(r=>r.isRitual).length;return `<button class="daily-program-button" data-city-day="${date}"><b>${calendarCount(rows.length,'формат','формата','форматов')}</b>${ritual?`<span>${calendarCount(ritual,'ритуал','ритуала','ритуалов')}</span>`:''}</button>`;}
+function publicDayButton(date){const rows=publicDailyFormats(date);if(!rows.length)return '';const ritual=rows.filter(r=>r.isRitual).length;return `<button class="daily-program-button" data-city-day="${date}" aria-label="${esc(fullPlanDate(date))}: открыть программу дня, ${calendarCount(rows.length,'формат','формата','форматов')}"><b>${calendarCount(rows.length,'формат','формата','форматов')}</b>${ritual?`<span>${calendarCount(ritual,'ритуал','ритуала','ритуалов')}</span>`:''}</button>`;}
 function showPublicDay(date){
  const rows=publicDailyFormats(date),events=calendarItems().filter(e=>e.start<=date&&e.end>=date&&matches(e));
  const line=(id,title,caption,ritual=false)=>`<button class="city-day-item ${ritual?'city-day-ritual':''}" ${id.startsWith('rhythm-')?`data-city-rhythm="${esc(id.slice(7))}" data-city-month="${Number(date.slice(5,7))-1}"`:`data-event="${esc(id)}"`}><b>${esc(title)}</b><span>${esc(caption)}</span></button>`;
  openDialog(`<div class="detail-category">Программа дня</div><h2 class="detail-title">${esc(fullPlanDate(date))}</h2><div class="detail-meta"><span class="badge pending">Предварительное расписание</span></div><div class="city-day-list">${events.map(e=>line(e.id,e.title,e.place||'')).join('')}${rows.map(e=>line(e.id,e.title,[e.time,e.place].filter(Boolean).join(' · '),e.isRitual)).join('')}</div>`);
 }
-function showPublicRhythm(id,m){const r=P.recurring.find(r=>r.id===id);if(!r)return;const e=publicRhythmItem(r),days=Array.from({length:daysIn(m)},(_,i)=>dateOf(m,i+1)).map(date=>publicDailyFormats(date).find(e=>e.rhythmId===id)).filter(Boolean);openDialog(`<div class="detail-category">${publicRitualIds.has(id)?'Городской ритуал':'Регулярная программа'} · ${esc(D.months[m].name)}</div><h2 class="detail-title">${esc(e.title)}</h2><div class="detail-meta"><span class="badge">${esc(e.place)}</span><span class="badge pending">Предварительное расписание</span></div><div class="detail-description"><p>${esc(e.description)}</p><p>${esc(publicRhythmSummary(r,m))}</p></div><div class="city-rhythm-dates">${days.map(d=>`<button data-city-day="${d.date}"><b>${Number(d.date.slice(8))}</b><span>${esc(d.time)}</span></button>`).join('')}</div>`);}
-function publicMobileCalendar(m){return Array.from({length:daysIn(m)},(_,i)=>{const date=dateOf(m,i+1),events=monthEvents(m).filter(e=>e.start<=date&&e.end>=date),regular=publicDailyFormats(date),hol=D.holidays.find(h=>h.start<=date&&h.end>=date);if(!events.length&&!regular.length&&!hol)return '';const titles=events.slice(0,2).map(e=>e.title).join(' · ');return `<button class="mobile-date-card city-mobile-day ${hol?'date-holiday':''}" data-city-day="${date}"><span class="mobile-date-range">${i+1}<small>${['Вс','Пн','Вт','Ср','Чт','Пт','Сб'][weekday(date)]}</small></span><span><b>${esc(titles||hol?.title||'Регулярная программа')}</b><small>${events.length?calendarCount(events.length,'событие','события','событий')+' · ':''}${calendarCount(regular.length,'регулярный формат','регулярных формата','регулярных форматов')}${regular.some(e=>e.isRitual)?' · ритуалы':''}</small></span><span aria-hidden="true">+</span></button>`;}).join('');}
+function showPublicRhythm(id,m){
+ const r=P.recurring.find(r=>r.id===id);if(!r)return;
+ const e=publicRhythmItem(r),days=Array.from({length:daysIn(m)},(_,i)=>dateOf(m,i+1)).map(date=>publicDailyFormats(date).find(e=>e.rhythmId===id)).filter(Boolean);
+ const slots=calendarItems().filter(item=>item.rhythmId===id&&inMonth(item,m));
+ const dates=days.length?`<div class="city-rhythm-dates">${days.map(d=>`<button data-city-day="${d.date}" aria-label="${esc(fullPlanDate(d.date))}: открыть программу дня"><b>${Number(d.date.slice(8))}</b><span>${esc(d.time)}</span></button>`).join('')}</div>`:slots.length?`<div class="search-event-list">${slots.map(item=>overviewEvent(item,m)).join('')}</div>`:`<div class="city-rhythm-period"><b>Период программы</b><p>${scheduleInMonth(r,m).map(p=>esc(fullPlanDate(p.start,p.end))).join(' · ')}</p><p>Отдельные даты выступлений уточняются.</p></div>`;
+ openDialog(`<div class="detail-category">${publicRitualIds.has(id)?'Городской ритуал':'Регулярная программа'} · ${esc(D.months[m].name)}</div><h2 class="detail-title">${esc(e.title)}</h2><div class="detail-meta"><span class="badge">${esc(e.place)}</span><span class="badge pending">Предварительное расписание</span></div><div class="detail-description"><p>${esc(e.description)}</p><p>${esc(publicRhythmSummary(r,m))}</p></div>${dates}`);
+}
+function publicMobileCalendar(m){return Array.from({length:daysIn(m)},(_,i)=>{const date=dateOf(m,i+1),events=monthEvents(m).filter(e=>e.start<=date&&e.end>=date),regular=publicDailyFormats(date),hol=D.holidays.find(h=>h.start<=date&&h.end>=date);if(!events.length&&!regular.length)return hol&&!state.query&&!state.filters.length?`<div class="mobile-date-card city-mobile-day date-holiday"><span class="mobile-date-range">${i+1}</span><span><b>${esc(hol.title)}</b><small>Выходной день</small></span></div>`:'';const titles=events.slice(0,2).map(e=>e.title).join(' · ');return `<button class="mobile-date-card city-mobile-day ${hol?'date-holiday':''}" data-city-day="${date}"><span class="mobile-date-range">${i+1}<small>${['Вс','Пн','Вт','Ср','Чт','Пт','Сб'][weekday(date)]}</small></span><span><b>${esc(titles||hol?.title||'Регулярная программа')}</b><small>${events.length?calendarCount(events.length,'событие','события','событий')+' · ':''}${calendarCount(regular.length,'регулярный формат','регулярных формата','регулярных форматов')}${regular.some(e=>e.isRitual)?' · ритуалы':''}</small></span><span aria-hidden="true">+</span></button>`;}).join('');}
 document.addEventListener('click',event=>{if(WORKING)return;const b=event.target.closest('button');if(!b)return;if(b.dataset.cityDay)showPublicDay(b.dataset.cityDay);if(b.dataset.cityRhythm)showPublicRhythm(b.dataset.cityRhythm,Number(b.dataset.cityMonth??state.month));});
