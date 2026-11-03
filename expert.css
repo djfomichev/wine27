@@ -309,3 +309,8 @@ body{font-size:16px;line-height:1.5}
 .filters .all-filter{min-width:104px;min-height:52px;margin-right:6px;padding:12px 24px;border-radius:28px;font:700 20px/1 HaussWide,sans-serif;justify-content:center}
 .filters .festival-filter{margin-right:0}
 @media(max-width:760px){.filters .all-filter{min-width:94px;min-height:48px;margin-right:4px;padding:12px 20px;font-size:18px}}
+/* All selected filters share one visible state. */
+.filters .festival-filter.active{background:#000;color:#fff;border-color:#000;box-shadow:none}
+/* Keep the filter group together when the reset action appears. */
+.team-calendar .filters{flex:1 1 1080px}
+@media(max-width:760px){.team-calendar .filters{flex:1 1 100%}}

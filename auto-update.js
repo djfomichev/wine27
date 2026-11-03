@@ -14,8 +14,8 @@
       if(ui&&ui.version===current&&typeof state==='object'){
         if(['load','loadMonth','year','month','projects','expert','plan'].includes(ui.view))state.view=ui.view;
         if(Number.isInteger(ui.month)&&ui.month>=0&&ui.month<12)state.month=ui.month;
-        state.category=['all','wine','music','gastro','art','city','partner','expert'].includes(ui.category)?ui.category:'all';
-        state.festivalsOnly=ui.festivalsOnly===true;
+        const selected=Array.isArray(ui.filters)?ui.filters:[ui.category,...(ui.festivalsOnly===true?['festival']:[])];
+        state.filters=[...new Set(selected.filter(k=>k==='festival'||Object.hasOwn(cats,k)))];
         state.density=ui.readabilityVersion===2&&ui.density==='compact'?'compact':'detail';
         state.expertTrack=['all','people','wines','recognition'].includes(ui.expertTrack)?ui.expertTrack:'all';
         state.expertTier=['all','core','development','reserve','conditional_session'].includes(ui.expertTier)?ui.expertTier:'all';
@@ -36,7 +36,7 @@
     if(WORKING&&typeof loadStorageOK!=='undefined'&&!loadStorageOK){say('Новая версия готова · сначала скачайте расчёт');return;}
     try{
       if(WORKING&&typeof saveLoad==='function'&&!saveLoad()){say('Сначала скачайте расчёт, затем обновите страницу');return;}
-      const ui={version:pending,readabilityVersion:2,view:state.view,month:state.month,category:state.category,festivalsOnly:state.festivalsOnly,density:state.density,expertTrack:state.expertTrack,expertTier:state.expertTier,expertMonth:state.expertMonth,planMonth:state.planMonth,query:state.query,planner:!!document.querySelector('.team-planner')?.open,scroll:window.scrollY};
+      const ui={version:pending,readabilityVersion:2,view:state.view,month:state.month,filters:state.filters,density:state.density,expertTrack:state.expertTrack,expertTier:state.expertTier,expertMonth:state.expertMonth,planMonth:state.planMonth,query:state.query,planner:!!document.querySelector('.team-planner')?.open,scroll:window.scrollY};
       sessionStorage.setItem(key,JSON.stringify(ui));
     }catch{say('Новая версия готова · обновите страницу вручную');return;}
     const next=new URL(location.href);next.searchParams.set('v',pending);

@@ -9,7 +9,7 @@ function showPublicEvent(id){
 }
 function publicMonthlyProgram(m){return publicCalendarProgram(m);}
 function publicExpertOverview(m){
- if(state.festivalsOnly||!['all','expert'].includes(state.category))return '';
+ if(!matchesFilters({category:'expert'}))return '';
  const items=expertMonthProjects(m).filter(p=>matches({...p,category:'expert',description:p.subtitle}));if(!items.length)return '';
  return `<button class="atlas-expert" data-load-month="${m}"><span><i aria-hidden="true"></i>Экспертная программа</span><b>${items.map(p=>esc(p.shortTitle||p.title)).join(' · ')}</b></button>`;
 }

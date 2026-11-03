@@ -13,7 +13,7 @@ function expertMatches(p){
  return (state.expertTrack==='all'||p.track===state.expertTrack)&&(!WORKING||state.expertTier==='all'||p.launch_tier===state.expertTier)&&(state.expertMonth===null||p.preferred_month_proposal===state.expertMonth+1)&&(!query||[p.title,p.detail,p.possible_partner].join(' ').toLowerCase().replace(/ё/g,'е').includes(query));
 }
 function expertOverview(m){if(!WORKING)return publicExpertOverview(m);
- if(state.festivalsOnly||!['all','expert'].includes(state.category))return '';
+ if(!matchesFilters({category:'expert'}))return '';
  const items=expertMonthProjects(m).filter(p=>matches({...p,category:'expert',expertId:p.id,description:p.detail}));
  if(state.query&&!items.length)return '';
  const core=items.filter(p=>p.launch_tier==='core').length,dev=items.filter(p=>p.launch_tier==='development').length,res=items.filter(p=>p.launch_tier==='reserve').length,child=items.some(p=>p.parent_id);
@@ -23,7 +23,7 @@ function expertOverview(m){if(!WORKING)return publicExpertOverview(m);
 }
 function expertMonthPanel(m){if(!WORKING)return publicExpertMonth(m);
  const items=expertMonthProjects(m).filter(p=>matches({...p,category:'expert',expertId:p.id,description:p.detail}));
- if(state.festivalsOnly||(!items.length&&state.category!=='all'&&state.category!=='expert')||(state.query&&!items.length))return '';
+ if((!items.length&&!matchesFilters({category:'expert'}))||(state.query&&!items.length))return '';
  return `<section class="expert-month-panel"><div class="section-heading"><h3>Экспертная работа месяца</h3><button class="plain" data-expert-month="${m}">Открыть направление</button></div><p>${esc(D.months[m].expertWork)}</p>${items.length?`<div class="expert-month-items">${items.map(p=>`<button data-expert="${esc(p.id)}"><strong>${esc(p.shortTitle)}</strong><span>${esc(p.statusLabel)}${p.id==='award'?' · внутри Винной недели':''}</span></button>`).join('')}</div>`:''}</section>`;
 }
 function renderExpert(){if(!WORKING){renderPublicExpert();return;}
@@ -47,7 +47,7 @@ function showTheme(m){openDialog(`<div class="detail-category">${esc(D.months[m]
 document.addEventListener('click',ev=>{
  const b=ev.target.closest('button');if(!b)return;
  if(b.dataset.expert){showExpert(b.dataset.expert);return;}
- if(b.dataset.expertMonth!==undefined||b.dataset.openExpertMonth!==undefined){state.expertMonth=Number(b.dataset.expertMonth??b.dataset.openExpertMonth);$('#detailDialog').close();state.category='all';state.festivalsOnly=false;setView('expert');}
+ if(b.dataset.expertMonth!==undefined||b.dataset.openExpertMonth!==undefined){state.expertMonth=Number(b.dataset.expertMonth??b.dataset.openExpertMonth);$('#detailDialog').close();state.filters=[];setView('expert');}
  if(b.dataset.expertAll){state.expertMonth=null;render();}
  if(b.dataset.expertTrack){state.expertTrack=b.dataset.expertTrack;render();}
  if(b.dataset.themeMonth!==undefined)showTheme(Number(b.dataset.themeMonth));

@@ -73,7 +73,7 @@ console.log('PASS: both editions preserve 91 projects and 88 dated records; publ
 assert.doesNotMatch(publicHTML, /<button data-view="(?:projects|expert)"/);
 pub.run('setView("projects")');assert.equal(pub.run('state.view'),'load');
 pub.run('setView("expert")');assert.equal(pub.run('state.view'),'load');
-pub.run('state.category="all";state.query="";state.festivalsOnly=false;setView("loadMonth",7)');
+pub.run('state.filters=[];state.query="";setView("loadMonth",7)');
 assert.equal(pub.run('state.view'),'month');
 assert.match(pub.el('#monthGrid').innerHTML,/data-city-day="2027-08-12"/);
 assert.doesNotMatch(pub.el('#monthAside').innerHTML,/После открытия проекта|Готовим к запуску|Сервисы города|Сроки на согласовании/);
@@ -108,9 +108,9 @@ assert.deepEqual([...nav.matchAll(/data-view="([^"]+)"/g)].map(m=>m[1]),['load',
 assert.match(nav,/nav-label-wide">Год<\/span>/);
 assert.match(fs.readFileSync('expert.css','utf8'),/\.views\.city-calendar-views\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)\}/);
 const before=plain(pub.run('calendarItems().map(e=>[e.id,e.start,e.end])'));
-pub.run('state.category="music";state.query="джаз";location.hash="#load-month-8";readHash()');
+pub.run('state.filters=["music"];state.query="джаз";location.hash="#load-month-8";readHash()');
 assert.equal(pub.run('state.view'),'month');assert.equal(pub.run('state.month'),7);
-assert.equal(pub.run('state.category'),'music');assert.equal(pub.run('state.query'),'джаз');
+assert.deepEqual(plain(pub.run('state.filters')),['music']);assert.equal(pub.run('state.query'),'джаз');
 pub.el('#backYear').onclick();assert.equal(pub.run('state.view'),'load');
 pub.run('location.hash="#year";readHash()');assert.equal(pub.run('state.view'),'load');
 pub.run('state.view="loadMonth";state.month=9;render()');assert.equal(pub.run('state.view'),'month');assert.equal(pub.run('state.month'),9);
@@ -119,3 +119,44 @@ assert.equal(pub.run('state.view'),'month');assert.equal(pub.run('state.month'),
 assert.deepEqual(plain(pub.run('calendarItems().map(e=>[e.id,e.start,e.end])')),before);
 work.run('setView("year")');assert.equal(work.run('state.view'),'year');
 console.log('PASS: 2 team views; all 12 month cards, mobile selector, legacy bookmarks and restored state open the daily calendar; event dates and working navigation preserved.');
+
+// Independent chips add/remove results without replacing other selections.
+for(const ed of [pub,work]){
+ const click=dataset=>{const b={dataset};for(const fn of ed.handlers.click)fn({target:{closest:()=>b}})};
+ ed.el('#reset').onclick();click({cat:'wine'});click({cat:'music'});
+ assert.deepEqual(plain(ed.run('state.filters')),['wine','music']);
+ assert.equal(ed.run('matches({category:"wine"})'),true);
+ assert.equal(ed.run('matches({category:"music"})'),true);
+ assert.equal(ed.run('matches({category:"art"})'),false);
+ click({cat:'wine'});assert.deepEqual(plain(ed.run('state.filters')),['music']);
+ assert.equal(ed.run('matches({category:"wine"})'),false);
+ click({festivals:'1'});assert.deepEqual(plain(ed.run('state.filters')),['music','festival']);
+ assert.equal(ed.run('matches({id:"cheese",category:"gastro"})'),true);
+ assert.equal(ed.run('matches({id:"radio",category:"music"})'),true);
+ const ids=ed.run('calendarItems().filter(matches).map(e=>e.id)');assert.equal(ids.length,new Set(ids).size);
+ ed.run('setView("month",7)');assert.deepEqual(plain(ed.run('state.filters')),['music','festival']);
+ click({cat:'expert'});assert.equal(ed.run('matches({category:"wine",expertId:"example"})'),true);
+ click({cat:'all'});assert.deepEqual(plain(ed.run('state.filters')),[]);
+ assert.equal(ed.run('filterSelected("all")'),true);
+ click({cat:'city'});click({cat:'city'});assert.equal(ed.run('filterSelected("all")'),true);
+ click({cat:'wine'});click({cat:'music'});ed.run('state.query="радио"');
+ assert.equal(ed.run('matches({category:"music",title:"Радио города"})'),true);
+ assert.equal(ed.run('matches({category:"wine",title:"Вино недели"})'),false);
+ ed.el('#reset').onclick();ed.run('setView("load")');
+}
+assert.doesNotMatch(pub.el('#loadView').innerHTML,/overview-key|unplaced-strip|Конкурс названий города/);
+assert.match(work.el('#loadView').innerHTML,/overview-key|unplaced-strip/);
+// Upgrade from the old single-category schema and preserve multiple new selections.
+const restore=(ui)=>{
+ const original=pub.ctx.document.querySelector;
+ pub.ctx.document.querySelector=s=>s==='meta[name="wine27-version"]'?{content:'aabbccddeeff0011'}:original(s);
+ pub.ctx.document.getElementById=id=>pub.el('#'+id);pub.ctx.requestAnimationFrame=f=>f();pub.ctx.setInterval=()=>{};
+ pub.ctx.sessionStorage={getItem:()=>JSON.stringify({version:'aabbccddeeff0011',...ui}),removeItem(){}};
+ vm.runInContext(fs.readFileSync('auto-update.js','utf8'),pub.ctx);
+ pub.ctx.document.querySelector=original;
+};
+restore({category:'music',festivalsOnly:true});assert.deepEqual(plain(pub.run('state.filters')),['music','festival']);
+restore({filters:['wine','music','wine','unknown'],view:'month',month:4});
+assert.deepEqual(plain(pub.run('state.filters')),['wine','music']);assert.equal(pub.run('state.view'),'month');
+assert.match(fs.readFileSync('auto-update.js','utf8'),/filters:state.filters/);
+console.log('PASS: additive filter toggles, independent removal, festival/category union, no duplicates, search, navigation, reset and update migration; public legend and undated strip removed.');

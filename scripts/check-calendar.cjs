@@ -29,7 +29,7 @@ console.log('PASS: source preservation, 12-month rendering, August programs, no 
 assert.equal(check('D.events.some(e=>e.id==="conference")'),false);assert.equal(check('D.issues.length'),8);
 
 check('state.query="";setView("loadMonth",7)');assert.match(el("#loadMonthView").innerHTML,/<details class="team-planner">/);assert.equal(check('activeLoad(7).length'),16);
-check('state.query="";state.category="all";state.festivalsOnly=false');
+check('state.query="";state.filters=[];state.filters=[]');
 for(let m=0;m<12;m++){
  const g=check(`overviewGroups(${m})`),ids=Object.values(g).flat().map(e=>e.id);
  assert.equal(ids.length,new Set(ids).size,'Duplicate overview event in '+m);
@@ -39,9 +39,9 @@ check('setView("load")');
 assert.equal((el('#loadView').innerHTML.match(/data-event="project-58"/g)||[]).length,1);
 assert.match(el('#loadView').innerHTML,/Большой август/);assert.match(el('#loadView').innerHTML,/Партнёрское окно/);
 assert.equal(check('overviewGroups(7).festivals.length'),1);assert.equal(check('overviewGroups(7).major.length'),0);
-check('state.festivalsOnly=true;setView("load")');assert.doesNotMatch(el('#loadView').innerHTML,/class="overview-regular"/);
+check('state.filters=["festival"];setView("load")');assert.doesNotMatch(el('#loadView').innerHTML,/class="overview-regular"/);
 assert.equal(check('D.events.filter(matches).length'),8);assert.equal(check('D.projects.filter(matches).length'),2);
-check('state.category="music";render()');assert.equal(check('D.events.filter(matches).length'),2);
+check('toggleFilter("music");render()');assert.equal(check('D.events.filter(matches).length'),check('D.events.filter(e=>isFestival(e)||e.category==="music").length'));assert(check('D.events.filter(matches).length')>8);
 el('#reset').onclick();assert.equal(check('D.events.filter(matches).length'),33);
 console.log('PASS: disjoint counts in 12 months, workload row parity, Etudes once, August and partner windows, combined festival filters.');
 
@@ -78,16 +78,16 @@ assert.equal(check('D.months.every(m=>m.themeDetail.length>100&&m.expertWork.len
 assert.equal(check('D.events.filter(p=>p.category==="partner"&&p.candidateLabel&&p.status==="proposed").length'),3);
 assert.match(check('D.sources[0].title'),/v10: 79/);
 assert.match(check('D.sources.find(s=>s.title.startsWith("Погодная")).title'),/слайд 38/);
-check('state.category="all";state.query="";state.festivalsOnly=false');
+check('state.filters=[];state.query="";state.filters=[]');
 for(let m=0;m<12;m++){
  assert.equal(check(`periodPrograms(${m}).some(p=>p.id==='cabaret_series')`),m>=5&&m<=9);
  assert.equal(check(`activeLoad(${m}).some(p=>p.id==='cabaret')`),m>=5&&m<=9);
 }
-check('state.category="expert";setView("year")');
+check('state.filters=["expert"];setView("year")');
 assert.match(el('#footerNote').textContent,/С рабочими датами: 16 · Без точных дней: 0/);
 check('setView("month",1)');
 assert.match(el('#footerNote').textContent,/С рабочими датами: 3 · Без точных дней: 0/);
-check('state.category="all";setView("expert")');
+check('state.filters=[];setView("expert")');
 assert.equal((el('#expertView').innerHTML.match(/class="expert-row"/g)||[]).length,16);
 assert.equal((el('#expertView').innerHTML.match(/data-expert-month=/g)||[]).length,12);
 check('state.expertTrack="wines";render()');
@@ -112,7 +112,7 @@ clickData({themeMonth:'7'});assert.match(el('#detailContent').innerHTML,/Авг�
 clickData({openMonth:'7'});assert.equal(check('state.view'),'month');assert.equal(check('state.month'),7);
 check('location.hash="#expert";readHash()');assert.equal(check('state.view'),'expert');
 el('#reset').onclick();
-check('state.festivalsOnly=true;setView("load")');
+check('state.filters=["festival"];setView("load")');
 assert.match(el('#loadView').innerHTML,/data-event="cheese"/);
 assert.doesNotMatch(el('#loadView').innerHTML,/data-event="names_contest"|data-event="exp_sparkling_session"/);
 el('#reset').onclick();
@@ -130,7 +130,7 @@ assert.equal(check('state.view'),'expert');assert.equal(check('state.expertTrack
 console.log('PASS: automatic update restores the expert view, track, tier and month.');
 
 // Phone layout uses dated event rows, while retaining the desktop day grid.
-check('state.query="";state.category="all";state.festivalsOnly=false;setView("month",4)');
+check('state.query="";state.filters=[];setView("month",4)');
 assert.match(el('#mobileAgenda').innerHTML,/mobile-date-card/);
 assert.match(el('#mobileAgenda').innerHTML,/1–10/);
 assert.match(el('#mobileAgenda').innerHTML,/data-event="may"/);
@@ -146,7 +146,7 @@ assert.match(fs.readFileSync('expert.css','utf8'),/env\(safe-area-inset-bottom\)
 console.log('PASS: large default, 12 month jump targets, mobile navigation labels and dated phone agenda.');
 
 // The full production plan is separate from confirmed dates and does not invent openings.
-check('state.query="";state.category="all";state.festivalsOnly=false;state.planMonth=null;setView("plan")');
+check('state.query="";state.filters=[];state.planMonth=null;setView("plan")');
 assert.match(el('#planView').innerHTML,/Рабочий план/);
 assert.equal((el('#planView').innerHTML.match(/class="plan-card tier-[^" ]+(?: is-festival)?"/g)||[]).length,102);
 assert.equal(check('calendarItems().length'),88);
@@ -168,7 +168,7 @@ check('location.hash="#plan";readHash()');assert.equal(check('state.view'),'plan
 console.log('PASS: all original projects scheduled or assigned preparation, no invented openings, readable cross-year dates, embedded programs and regular slots counted once.');
 
 // Large annual events must remain visible, without turning nested programs into extra production.
-check('state.category="all";state.query="";state.festivalsOnly=false;setView("load")');
+check('state.filters=[];state.query="";setView("load")');
 for(const id of ['craft','love','march8','barin','books','anatoliy','italian-sunday']){
  assert.equal(check(`loadEventType(planningItem('${id}'))`),'major',id);
  assert.match(el('#loadView').innerHTML,new RegExp('data-event="'+id+'"'),id+' is hidden on the year map');
@@ -185,7 +185,7 @@ check('setView("load")');assert.equal(el('#planEntry').hidden,false);
 console.log('PASS: large weekends and festivals stay visible, nested bar weekend counted once, exhibition names and single plan heading.');
 
 // Current user decisions: themes, redistributed peaks and resolved calendar questions.
-check('state.category="all";state.query="";state.festivalsOnly=false;setView("load")');
+check('state.filters=[];state.query="";setView("load")');
 for(const density of ['detail','compact']){
  check(`state.density='${density}';renderLoad()`);
  assert.equal((el('#loadView').innerHTML.match(/class="month-theme-card"/g)||[]).length,12);
