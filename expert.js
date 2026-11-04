@@ -5,8 +5,8 @@ const expertTracks={people:'Конкурсы специалистов',wines:'О
 const expertTiers={core:'Предлагаемое ядро',development:'Разработка',reserve:'Партнёрский резерв',conditional_session:'Специализированная сессия'};
 const orgLabels={regular:'Постоянная программа',invited:'Приглашённый проект',owned:'Собственный проект'};
 function isExpertItem(e){return !!e.expertId||e.category==='expert';}
-function projectInMonth(e,m){return !e.start&&e.month===m+1;}
-function periodPrograms(m){return D.projects.filter(p=>p.periodMonths?.includes(m+1)&&p.organizationType==='regular'&&matches(p));}
+function projectInMonth(e,m){const s=e.schedule;return e.active!==false&&!e.start&&(s?['window','within_parent'].includes(s.kind)&&s.month===m+1:e.month===m+1);}
+function periodPrograms(m){return D.projects.filter(p=>p.periodMonths?.includes(m+1)&&p.programType==='regular'&&matches(p));}
 function expertMonthProjects(m){return X.projects.filter(p=>p.preferred_month_proposal===m+1);}
 function expertMatches(p){
  const query=state.query.replace(/ё/g,'е');

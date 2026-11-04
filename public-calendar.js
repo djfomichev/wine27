@@ -3,42 +3,11 @@
 // The team calendar includes the full program. Provisional dates stay labelled.
 const publicRitualIds=new Set(['bell','flash','ritual']);
 const publicNonEventIds=new Set(['photo','trade','orchestra_rehearsal','orchestra_tours','city_program_meeting','monthly_program_lock']);
-const publicFormatCopy={
- coffee_rave:['Кофе-рейв','Утренние встречи с кофе, диджейской музыкой и танцами.','Кофейная точка и коворкинг','music'],
- anatoliy_meetings:['Встречи у Анатолия','Музыка, истории города и встречи у тополя Анатолия. В холодную погоду программа проходит в энотеке.','Энотека','city'],
- wineclub:['Винный клуб Соловьёва','Встречи с Алексеем Соловьёвым, дегустации и знакомство с винодельческими хозяйствами.','Энотека','wine'],
- wine_week:['Вино недели','Новая подборка вин в общей теме месяца.','Энотека и рестораны','wine'],
- winemaker_in_city:['Винодел в городе','Производитель представляет хозяйство и вина, встречается с гостями и участвует в ресторанной программе.','Энотека и площадки города','wine'],
- wine_shop_residencies:['Гастроли винотек','Приглашённые команды представляют свои коллекции вин и сменяются в течение сезона.','Центральный бар','wine'],
- bar:['Вечеринки Центрального бара','Артисты, диджеи и ведущие промогруппы России: RML, ACT, Odyssey, Personality и локальная южная сцена.','Центральный бар','music'],
- august_promoters:['Промогруппы в Центральном баре','RML, ACT, Odyssey, Personality и другие ведущие промогруппы России представляют свои вечеринки.','Центральный бар','music'],
- august_main_stage:['Городские концерты','Концерты и выступления локальной южной сцены в программе Большого августа.','Городские музыкальные площадки','music'],
- square_music:['Музыка на площади','Живые музыкальные составы, столики и вечерняя программа на городской площади.','Центральная площадь','music'],
- dance:['Ротонда: сальса и румба','Танцевальные вечера с ведущим: сальса и румба для гостей и команды города.','Ротонда','music'],
- stage:['Ротонда: камерная музыка','Камерные составы и рояль. По субботам вечерние концерты, по воскресеньям дневные.','Ротонда','music'],
- rotunda_morning:['Утро в Ротонде','Утренние занятия движением, йога и растяжка.','Ротонда','city'],
- cabaret:['Кабаре в эвент-холле','Сезонная серия театральных и музыкальных представлений с июня по конец октября.','Эвент-холл','music'],
- jazz:['Джазовые резиденции','Клуб Алексея Козлова, ЭССЕ и THE HAT представляют своих музыкантов и авторские программы.','Городские музыкальные площадки','music'],
- cinematica:['Оркестр «Синематика»','Музыка кино, самостоятельные концерты и программы для городских событий.','Концертные площадки города','music'],
- noise:['Кабаре «Шум»','Театральные и музыкальные шоу резидента города.','Эвент-холл','music'],
- hall:['Концерты и шоу эвент-холла','Приглашённые концерты, театральные и клубные шоу в холодный сезон.','Эвент-холл','music'],
- djs:['Диджейские резиденции','Диджеи со всей России приезжают на 1 месяц и выступают на городских площадках.','Центральный бар, пляж, руфтоп и радио','music'],
- beach:['Программа пляжа','Музыка и диджейские сеты у моря, встречи на закате. Еду и напитки можно заказать из ресторанов.','Пляж','music'],
- rooftop:['Камерные вечера на крыше','Музыкальные вечера и специальные программы пространства с ограниченным доступом.','Руфтоп «Флагмана»','music'],
- cinema:['Кино и обсуждения','Тематические показы, встречи с авторами и разговоры с экспертами.','Кинотеатр и зал музея','art'],
- science:['Лекции и встречи','Разговоры о вине, природе, технологиях и истории в темах месяцев.','Музей и лекторий','art'],
- book_club:['Книжный клуб','Чтения, встречи с авторами и обсуждения книг о вине, гастрономии, искусстве и путешествиях.','Коворкинг и городские площадки','art'],
- city_clubs:['Городские клубы','Бег, прогулки и встречи сообществ на городских маршрутах.','Городские маршруты','city'],
- radio:['Радио города','Музыка, авторские шоу, интервью с участниками событий и городские истории.','Радио города','music'],
- bell:['Колокол на закате','Городовой звонит в колокол на пирсе каждый день в момент заката.','Пирс','city'],
- flash:['Городской флешмоб','Общее действие команды и гостей на закате: городской танец, круг или аплодисменты уходящему дню.','Городская площадка','city'],
- ritual:['Ритуалы ресторанов и Wine o’clock','Постоянные и сезонные ритуалы из «Свитка ритуалов Белого мыса». Wine o’clock объединяет винную программу ресторанов.','Рестораны и городские объекты','wine'],
- june14_day:['Дневная городская программа','Музыка, встречи и открытые программы городских клубов.','Городские площадки','city']
-};
-function publicRhythmItem(r){const c=publicFormatCopy[r.id]||[r.title,r.description,r.location,'city'];return {id:'rhythm-'+r.id,title:c[0],description:c[1],place:c[2],category:c[3],rhythmId:r.id,status:'proposed'};}
+
+function publicRhythmItem(r){const c=r.copy?.calendar||[r.title,r.description,r.location,'city'];return {id:'rhythm-'+r.id,title:c[0],description:c[1],place:c[2],category:c[3],rhythmId:r.id,status:'proposed'};}
 function publicFormats(m){return P.recurring.filter(r=>!publicNonEventIds.has(r.id)&&scheduleInMonth(r,m).length&&matches(publicRhythmItem(r)));}
 function publicRhythmSummary(r,m){
- const labels={coffee_rave:m>=4&&m<=8?'Каждую субботу':'2-я суббота месяца',anatoliy_meetings:m===0?'24 января':'2-е и 4-е воскресенье',wineclub:'Последний четверг месяца',wine_week:'Каждый понедельник',winemaker_in_city:'Пятница и суббота',wine_shop_residencies:'Новая команда каждую неделю',bar:'Пятница и суббота',square_music:'Пятница, суббота и воскресенье',dance:'Вторник и среда вечером',stage:'Суббота вечером и воскресенье днём',rotunda_morning:'Вторник и четверг утром',cabaret:'Четверг и воскресенье',hall:'По субботам',djs:'Резидент на 1 месяц',beach:'Пятница, суббота и воскресенье',rooftop:'Четверг и суббота',cinema:'По средам',science:'По субботам',book_club:'1-е и 3-е воскресенье',city_clubs:'Суббота и воскресенье',radio:m>=4&&m<=8?'Ежедневно':'Суббота и воскресенье',bell:'Ежедневно на закате',flash:'Ежедневно на закате',ritual:'Ежедневно · Wine o’clock в 18:00'};
+ const labels={coffee_rave:m>=4&&m<=8?'Каждую субботу':'2-я суббота месяца',anatoliy_meetings:m===0?'24 января':'2-е и 4-е воскресенье',wineclub:'Последний четверг месяца',wine_week:'Каждый понедельник',winemaker_in_city:'Пятница и суббота',wine_shop_residencies:'Новая команда каждую неделю',bar:'Пятница и суббота',square_music:'Пятница, суббота и воскресенье',dance:'Вторник и среда вечером',stage:'Суббота вечером и воскресенье днём',rotunda_morning:'Вторник и четверг утром',cabaret:r.dayLabel,hall:'По субботам',djs:'Резидент на 1 месяц',beach:'Пятница, суббота и воскресенье',rooftop:'Четверг и суббота',cinema:'По средам',science:'По субботам',book_club:'1-е и 3-е воскресенье',city_clubs:'Суббота и воскресенье',radio:m>=4&&m<=8?'Ежедневно':'Суббота и воскресенье',bell:'Ежедневно на закате',flash:'Ежедневно на закате',ritual:'Ежедневно · Wine o’clock в 18:00'};
  return labels[r.id]||r.dayLabel;
 }
 function publicRegularPreview(m){
@@ -51,7 +20,7 @@ function publicRegularPreview(m){
  return [...groups].map(([title,names])=>({title,text:names.slice(0,3).join(', ')+(names.length>3?' и ещё '+(names.length-3):'')}));
 }
 function publicMonthResults(m){
- const events=new Map([...monthEvents(m),...D.projects.filter(e=>projectInMonth(e,m)&&matches(e))].map(e=>[e.id,e]));
+ const events=new Map([...monthEvents(m),...monthUndated(m)].map(e=>[e.id,e]));
  for(const p of expertMonthProjects(m))if(!events.has(p.id)&&matches({...p,category:'expert',description:p.subtitle})){const item=planningItem(p.id);if(item)events.set(p.id,item);}
  return {month:m,events:[...events.values()],formats:publicFormats(m)};
 }
@@ -98,7 +67,7 @@ function publicDailyFormats(date){
   if(r.calendarVisible||['djs','wine_shop_residencies'].includes(r.id))continue;
   if(['2027-01-09','2027-01-10'].includes(date)&&r.id!=='radio')continue;
   const extra=r.extra_dates?.find(p=>p.date===date);
-  const p=r.periods.find(p=>p.start<=date&&p.end>=date);if(!p&&!extra)continue;
+  const p=r.periods.find(p=>p.start&&p.end&&p.start<=date&&p.end>=date);if(!p&&!extra)continue;
   if(!extra){
    if(r.excludedDates?.includes(date)||r.exclude_ranges?.some(([a,b])=>date>=a&&date<=b))continue;
    const days=p.weekdays_iso||r.weekdays_iso||[];
@@ -135,3 +104,5 @@ function showPublicRhythm(id,m){
 }
 function publicMobileCalendar(m){return Array.from({length:daysIn(m)},(_,i)=>{const date=dateOf(m,i+1),events=monthEvents(m).filter(e=>e.start<=date&&e.end>=date),regular=publicDailyFormats(date),hol=D.holidays.find(h=>h.start<=date&&h.end>=date);if(!events.length&&!regular.length)return hol&&!state.query&&!state.filters.length?`<div class="mobile-date-card city-mobile-day date-holiday"><span class="mobile-date-range">${i+1}</span><span><b>${esc(hol.title)}</b><small>Выходной день</small></span></div>`:'';const titles=events.slice(0,2).map(e=>e.title).join(' · ');return `<button class="mobile-date-card city-mobile-day ${hol?'date-holiday':''}" data-city-day="${date}"><span class="mobile-date-range">${i+1}<small>${['Вс','Пн','Вт','Ср','Чт','Пт','Сб'][weekday(date)]}</small></span><span><b>${esc(titles||hol?.title||'Регулярная программа')}</b><small>${events.length?calendarCount(events.length,'событие','события','событий')+' · ':''}${calendarCount(regular.length,'регулярный формат','регулярных формата','регулярных форматов')}${regular.some(e=>e.isRitual)?' · ритуалы':''}</small></span><span aria-hidden="true">+</span></button>`;}).join('');}
 document.addEventListener('click',event=>{if(WORKING)return;const b=event.target.closest('button');if(!b)return;if(b.dataset.cityDay)showPublicDay(b.dataset.cityDay);if(b.dataset.cityRhythm)showPublicRhythm(b.dataset.cityRhythm,Number(b.dataset.cityMonth??state.month));});
+
+function pendingMonthProgram(m){const list=monthUndated(m);return list.length?`<section class="month-pending" aria-label="События месяца без точных дней"><h3>Срок уточняется</h3><div>${list.map(e=>`<button data-event="${esc(e.id)}" class="pending-event${festivalClass(e)}"><b>${esc(e.title)}</b><span>${esc(periods(e))}</span></button>`).join('')}</div></section>`:'';}

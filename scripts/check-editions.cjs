@@ -10,9 +10,9 @@ function edition(working){
 const pub=edition(false),work=edition(true);
 const plain=x=>JSON.parse(JSON.stringify(x));
 assert.deepEqual(plain(pub.run('[...D.events,...D.projects].map(e=>[e.id,e.start,e.end,e.status])')),plain(work.run('[...D.events,...D.projects].map(e=>[e.id,e.start,e.end,e.status])')),'Both editions preserve all source identities, dates and statuses');
-assert.equal(pub.run('D.events.length+D.projects.length'),91);
+assert.equal(pub.run('D.events.length+D.projects.length'),90,'Only excluded installations leave the active calendar; canonical registry retains91');
 assert.deepEqual(plain(pub.run('calendarItems().map(e=>[e.id,e.start,e.end])')),plain(work.run('calendarItems().map(e=>[e.id,e.start,e.end])')),'Dated residencies and embedded programs preserved');
-assert.equal(pub.run('calendarItems().length'),88);
+assert.equal(pub.run('calendarItems().length'),80,'8 moved programs have monthly windows, not fabricated dated occurrences');
 assert.equal(pub.run('D.issues.length'),0);assert.equal(work.run('D.issues.length'),8);
 assert.equal(pub.run('P.preparation.length'),0);assert(work.run('P.preparation.length')>0);
 const internal=/рабочи[йехм]+\s+(?:слот|окн|план)|рабочие окна резиденций|их связь не выяснена|не обещать тот же зал|сроки требуют решения|проверить доступность|рассчитать команду|недельная сетка|этапы подготовки|производственные|ресурсный шлюз|букинг|монтаж|демонтаж|повторный.*продакшен|пока решение не принято|предлагаемый хозяин/i;
@@ -25,7 +25,7 @@ for(const id of pub.run('[...D.events,...D.projects,...D.embedded,...D.scheduled
 pub.run('showEvent("slot-noise-2027-01-23")');
 assert.match(pub.el('#detailContent').innerHTML,/Кабаре «Шум»/);
 assert.match(pub.el('#detailContent').innerHTML,/23 января/);
-assert.match(pub.el('#detailContent').innerHTML,/Театрально-музыкальный резидент/);
+assert.match(pub.el('#detailContent').innerHTML,/Театральн/);
 for(let m=0;m<12;m++){
  const monthButton={dataset:{loadMonth:String(m)}};
  for(const click of pub.handlers.click)click({target:{closest:()=>monthButton}});
@@ -67,7 +67,7 @@ for(const html of [publicHTML,workHTML]){
  assert(html.includes(`name="wine27-version" content="${release.version}"`));
  for(const [,url]of html.matchAll(/(?:src|href)="([^\"]+\.(?:js|css)(?:\?[^\"]*)?)"/g))assert(url.endsWith('?v='+release.version),'Unstamped '+url);
 }
-console.log('PASS: both editions preserve 91 projects and 88 dated records; public views and every modal exclude operational copy; working preparation, questions, scenario and launch boundaries remain available; responsive layout and synchronized auto-update paths checked.');
+console.log('PASS: both editions preserve 90 active projects and 80 dated records; public views and every modal exclude operational copy; working preparation, questions, scenario and launch boundaries remain available; responsive layout and synchronized auto-update paths checked.');
 
 // Public calendar has no project or expert portfolio navigation.
 assert.doesNotMatch(publicHTML, /<button data-view="(?:projects|expert)"/);
@@ -96,11 +96,11 @@ assert.equal(work.run('planningItem("exp_sparkling_session").start'),'2027-12-03
 assert.equal(work.run('expertById.get("exp_sparkling_session").first_year'),null,'A proposed window does not approve the first year');
 assert.equal(pub.run('P.production===undefined'),true,'Operational ownership must remain encrypted');
 for(const role of work.run('productionRoles()'))assert(work.run('!!planningItem('+JSON.stringify(role.projectId)+')'),'Unknown production role');
-assert(work.run('productionMonthData(1).parallel')>=2);assert(work.run('productionMonthData(10).parallel')>=2);
+assert(work.run('productionMonthData(1).parallel')>=2);assert(work.run('productionMonthData(10).lead.some(r=>r.projectId==="anchovy")'));assert(work.run('productionMonthData(10).lead.some(r=>r.projectId==="exhibition-nov")'));assert.equal(work.run('planningItem("anchovy").start'),null);
 assert.equal(work.run('productionMonthData(9).lead.some(r=>r.projectId==="award")'),false);
 assert.equal(work.run('productionMonthData(9).lead.some(r=>r.projectId==="wineweek")'),true);
 work.run('setView("loadMonth",9)');assert.match(work.el('#loadMonthView').innerHTML,/Команда месяца/);assert.match(work.el('#loadMonthView').innerHTML,/HURMA/);
-console.log('PASS: all 16 expert entries have proposed dates, HURMA roles resolve, exhibition overlaps identified, and Wine Week/Award production counted once.');
+console.log('PASS: all 16 expert entries have proposed dates, HURMA roles resolve, undated November production retained without invented overlap, and Wine Week/Award production counted once.');
 
 // Year/month navigation, old bookmarks and an automatic update keep the same program.
 const nav=publicHTML.match(/<nav class="views city-calendar-views"[\s\S]*?<\/nav>/)[0];

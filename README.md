@@ -11,3 +11,13 @@ https://wine27.ru/work/ содержит рабочие детали и откр
 Основная версия формируется scripts/build-public.py. Идентификаторы, даты и исходный состав программы сохраняются. scripts/stamp-version.py выпускает общий номер версии, scripts/protect-work.py создаёт зашифрованный рабочий пакет. GitHub Pages публикует main из корня репозитория.
 
 Открытые вкладки автоматически получают обновления. Рабочий ключ сохраняется только в текущей сессии вкладки; кнопка «Закрыть доступ» удаляет его. Расчёты команды по-прежнему сохраняются в браузере и передаются через JSON. Совместного редактирования нет.
+
+## Program source and v15 build
+
+Edit `private-work/program.json`, recovered by `python3 scripts/unlock-work.py --key-file PATH` with the existing owner key. Do not edit generated data files. Validate and build all editions locally on macOS:
+
+```sh
+python3 scripts/build-release.py --key-file PATH
+```
+
+Requires Python jsonschema, Pillow, cryptography; node, pdfinfo, and Swift/CoreGraphics for a changed deck. `presentation.buildSource` points to the preserved approved v15 renderer/assets bundle; it is excluded from contentRevision for portable recovery. Public repository contains only derived calendar data, schema/code, approved PDF/previews and encrypted working payload. Future content changes require accepted source edits; no chat polling exists. Calendar and presentation share contentRevision/releaseId; `/names/` keeps its separate version. Unknown dates and labor hours remain unknown. Legacy local scenario IDs/values stay intact and exportable; schedule changes are marked for review.

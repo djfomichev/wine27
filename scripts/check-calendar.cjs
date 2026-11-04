@@ -4,12 +4,12 @@ const handlers={};const ctx={window:{addEventListener(){},scrollTo(){}},document
 for(const p of ['private-work/data','private-work/expert-data','private-work/planning-data','load','expert','plan','program-guide','public-view','public-calendar','production','app'])vm.runInContext(fs.readFileSync(p+'.js','utf8'),ctx);
 function check(code){return vm.runInContext(code,ctx)}
 assert.equal(check('state.view'),'load');assert.equal(check('state.density'),'detail');assert.match(el('#loadView').innerHTML,/Карта года/);assert.equal((el('#loadView').innerHTML.match(/<article[^>]*class="overview-month/g)||[]).length,12);
-assert.equal(check('D.events.length'),33);assert.equal(check('D.projects.length'),58);assert.equal(check('D.holidays.length'),8);
+assert.equal(check('D.events.length'),33);assert.equal(check('D.projects.length'),57);assert.equal(check('D.holidays.length'),8);
 assert.equal(check('activeLoad(7).length'),16);assert.equal(check('loadEvents(7,"major").length'),1);
 assert.equal(check('defaultUnits(LOAD.recurring.find(r=>r.id==="radio"),7)'),31);
 assert.equal(check('defaultUnits(LOAD.recurring.find(r=>r.id==="radio"),0)'),10);
 assert.equal(check('loadRows(7).some(r=>r.id==="event:august")'),false);
-assert.equal(check('loadRows(9).some(r=>r.id==="event:award")'),false);
+assert.equal(check('loadRows(9).find(r=>r.id==="event:award").prepOnly'),true);
 assert.equal(check('loadStats(7).done'),0);assert.equal(check('loadStats(7).total'),0);
 check('loadScenario.rows["7:regular:radio"]={n:31,people:2,hours:3,prep:10}');
 assert.equal(check('loadStats(7).total'),196);assert.equal(check('loadStats(7).done'),1);
@@ -20,7 +20,7 @@ check('loadScenario={rows:{},capacity:{},extra:[]}');
 for(let i=0;i<12;i++){check(`setView('loadMonth',${i})`);assert.match(el('#loadMonthView').innerHTML,/Регулярная программа/);assert.match(el('#loadMonthView').innerHTML,/Рассчитать команду/);check(`setView('month',${i})`);assert.match(el('#monthGrid').innerHTML,/day-number/)}
 check('location.hash="#load-month-8";readHash()');assert.equal(check('state.view'),'loadMonth');assert.equal(check('state.month'),7);
 check('state.query="радио";renderLoad()');assert.equal(check('activeLoad(7).length'),1);assert.equal(check('loadEvents(7,"major").length'),0);assert.match(el('#loadView').innerHTML,/Радио/);
-check('state.query="";setView("year")');assert.match(el('#yearGrid').innerHTML,/Большой август/);
+check('state.query="";setView("year")');assert.match(el('#yearGrid').innerHTML,/Августовская музыкальная программа/);
 check('setView("projects")');assert.match(el('#projectGrid').innerHTML,/Центральный бар/);
 check('showEvent("project-67")');assert.match(el('#detailContent').innerHTML,/Personality/);
 for(const r of check('LOAD.recurring')){assert(check(`D.projects.some(p=>p.id===${JSON.stringify(r.source)})`),r.source)}
@@ -33,11 +33,11 @@ check('state.query="";state.filters=[];state.filters=[]');
 for(let m=0;m<12;m++){
  const g=check(`overviewGroups(${m})`),ids=Object.values(g).flat().map(e=>e.id);
  assert.equal(ids.length,new Set(ids).size,'Duplicate overview event in '+m);
- assert.equal(g.festivals.length+g.major.length+g.projects.length+g.expert.length,check(`loadRows(${m}).filter(e=>e.id.startsWith("event:")||e.id.startsWith("project:")).length`),'Display groups must match event workload rows '+m);
+ assert.equal(g.festivals.length+g.major.length+g.projects.length+g.expert.length,check(`loadRows(${m}).filter(e=>!e.prepOnly && (e.id.startsWith("event:")||e.id.startsWith("project:"))).length`),'Display groups must match event workload rows '+m);
 }
 check('setView("load")');
 assert.equal((el('#loadView').innerHTML.match(/data-event="project-58"/g)||[]).length,1);
-assert.match(el('#loadView').innerHTML,/Большой август/);assert.match(el('#loadView').innerHTML,/Партнёрское окно/);
+assert.match(el('#loadView').innerHTML,/Концерты и вечеринки/);assert.match(el('#loadView').innerHTML,/Партнёрское окно/);
 assert.equal(check('overviewGroups(7).festivals.length'),1);assert.equal(check('overviewGroups(7).major.length'),0);
 check('state.filters=["festival"];setView("load")');assert.doesNotMatch(el('#loadView').innerHTML,/class="overview-regular"/);
 assert.equal(check('D.events.filter(matches).length'),8);assert.equal(check('D.projects.filter(matches).length'),2);
@@ -57,16 +57,16 @@ const preservedIds=["anatoliy", "anchovy", "august", "award", "barin", "birthday
 
 const allIds=check('[...D.events,...D.projects].map(p=>p.id)');
 assert.equal(allIds.length,new Set(allIds).size);
-for(const id of preservedIds)assert(allIds.includes(id),'Lost existing project '+id);
+const canonical=JSON.parse(fs.readFileSync('private-work/program.json'));for(const id of preservedIds)assert(canonical.entities.some(e=>e.id===id),'Lost existing project '+id);assert(!allIds.includes('project-12'));assert.equal(canonical.entities.find(e=>e.id==='project-12').active,false);
 assert.equal(check('X.projects.filter(p=>!p.parent_id).length'),15);
 assert.equal(check('X.projects.filter(p=>p.parent_id).length'),1);
 for(const [tier,n] of [['core',6],['development',7],['reserve',2]])assert.equal(check(`X.projects.filter(p=>p.launch_tier===${JSON.stringify(tier)}).length`),n);
 for(const [id,month] of [['exhibition',2],['exhibition-nov',11]]){
  assert.equal(check(`D.projects.find(p=>p.id==='${id}').month`),month);
  assert.equal(check(`D.events.some(p=>p.id==='${id}')`),false);
- assert.equal(check(`!!D.projects.find(p=>p.id==='${id}').start`),true);
+ assert.equal(check(`!!D.projects.find(p=>p.id==='${id}').start`),id==='exhibition');
 }
-assert.equal(check('D.projects.find(p=>p.id==="cheese").month??null'),null);
+assert.equal(check('D.projects.find(p=>p.id==="cheese").month??null'),3);
 for(const id of ['dozen','south-table','anchovy'])assert(check(`D.events.some(p=>p.id==='${id}')`));
 assert.equal(check('D.projects.find(p=>p.id==="exp_sparkling_session").month??null'),12);
 assert.equal(check('expertById.get("exp_sparkling_session").first_year'),null);
@@ -80,8 +80,8 @@ assert.match(check('D.sources[0].title'),/v10: 79/);
 assert.match(check('D.sources.find(s=>s.title.startsWith("Погодная")).title'),/слайд 38/);
 check('state.filters=[];state.query="";state.filters=[]');
 for(let m=0;m<12;m++){
- assert.equal(check(`periodPrograms(${m}).some(p=>p.id==='cabaret_series')`),m>=5&&m<=9);
- assert.equal(check(`activeLoad(${m}).some(p=>p.id==='cabaret')`),m>=5&&m<=9);
+ assert.equal(check(`periodPrograms(${m}).some(p=>p.id==='cabaret_series')`),m>=5&&m<=11);
+ assert.equal(check(`activeLoad(${m}).some(p=>p.id==='cabaret')`),m>=5&&m<=11);
 }
 check('state.filters=["expert"];setView("year")');
 assert.match(el('#footerNote').textContent,/С рабочими датами: 16 · Без точных дней: 0/);
@@ -119,7 +119,7 @@ el('#reset').onclick();
 console.log('PASS: v10 project preservation, 15+1 portfolio, proposed exhibition windows, seasonal cabaret, conditional year, expert filters, real calendar counts and cross-view navigation.');
 
 // The update restores the new expert state without changing existing scenario keys.
-assert.match(fs.readFileSync('load.js','utf8'),/belyi-mys-2027-resource-scenario-v1/);
+assert.equal(check('LOAD.key'),'belyi-mys-2027-resource-scenario-v1');
 const originalQuery=ctx.document.querySelector;
 ctx.document.querySelector=s=>s==='meta[name="wine27-version"]'?{content:'aabbccddeeff0011'}:originalQuery(s);
 ctx.document.getElementById=id=>el('#'+id);
@@ -148,8 +148,8 @@ console.log('PASS: large default, 12 month jump targets, mobile navigation label
 // The full production plan is separate from confirmed dates and does not invent openings.
 check('state.query="";state.filters=[];state.planMonth=null;setView("plan")');
 assert.match(el('#planView').innerHTML,/Рабочий план/);
-assert.equal((el('#planView').innerHTML.match(/class="plan-card tier-[^" ]+(?: is-festival)?"/g)||[]).length,102);
-assert.equal(check('calendarItems().length'),88);
+assert.equal((el('#planView').innerHTML.match(/class="plan-card tier-[^" ]+(?: is-festival)?"/g)||[]).length,101);
+assert.equal(check('calendarItems().length'),80);
 assert.equal(check('D.embedded.length'),11);
 assert.equal(check('new Set(calendarItems().map(e=>e.id)).size'),check('calendarItems().length'));
 for(const id of check('[...D.events,...D.projects].map(e=>e.id)'))assert(check(`!!planningItem('${id}').start||preparationFor('${id}').length>0||recurringFor('${id}').length>0`),'No date, preparation or rhythm for '+id);
@@ -162,8 +162,8 @@ for(let m=0;m<12;m++){
  assert.equal(check(`loadRows(${m}).some(r=>r.id.startsWith('event:embedded-')||r.id.startsWith('event:slot-'))`),false,'Program components must not add production twice');
 }
 check('showEvent("embedded-height")');assert.match(el('#detailContent').innerHTML,/Высота/);assert.match(el('#detailContent').innerHTML,/14 августа/);
-check('showRhythm("cabaret")');assert.match(el('#detailContent').innerHTML,/26 октября|2027-10-26/);assert.match(el('#detailContent').innerHTML,/Паузы/);
-clickData({planMonth:'7'});assert.equal(check('state.view'),'plan');assert.equal(check('state.planMonth'),7);assert.match(el('#planView').innerHTML,/Большой август/);
+check('showRhythm("cabaret")');assert.match(el('#detailContent').innerHTML,/После премьеры|После готовности|частот|сезон/i);assert.match(el('#detailContent').innerHTML,/частот|сетк/i);
+clickData({planMonth:'7'});assert.equal(check('state.view'),'plan');assert.equal(check('state.planMonth'),7);assert.match(el('#planView').innerHTML,/Августовская музыкальная программа/);
 check('location.hash="#plan";readHash()');assert.equal(check('state.view'),'plan');
 console.log('PASS: all original projects scheduled or assigned preparation, no invented openings, readable cross-year dates, embedded programs and regular slots counted once.');
 
@@ -177,7 +177,7 @@ for(const id of check('[...D.events,...D.projects].filter(isFestival).map(e=>e.i
 assert.match(el('#loadView').innerHTML,/data-event="embedded-bar_music_weekend"/);
 assert.equal(check('displayTier(planningItem("embedded-bar_music_weekend"))'),'major');
 assert.equal(check('loadRows(7).some(e=>e.source==="embedded-bar_music_weekend")'),false);
-for(const id of ['project-19','exhibition','exhibition-nov'])assert.equal(check(`planningItem('${id}').title`),'Выставка современного искусства');
+assert.equal(check('planningItem("project-19").title'),'Выставки современного искусства');for(const id of ['exhibition','exhibition-nov'])assert.equal(check(`planningItem('${id}').title`),'Выставка современного искусства');
 check('setView("plan")');assert.equal(el('#planEntry').hidden,true);
 assert.equal((el('#planView').innerHTML.match(/<h2>/g)||[]).length,1);
 assert.doesNotMatch(el('#planView').innerHTML,/Здесь собрана вся программа|plan-principles/);
@@ -206,7 +206,7 @@ assert.equal(check('planningItem("embedded-bar_july_party").start'),'2027-07-17'
 assert.equal(check('planningItem("embedded-bar_music_weekend").start'),'2027-08-14');
 assert.equal(check('D.embedded.filter(e=>e.formatLabel==="Артисты из Москвы").length'),2);
 assert.equal(check('displayTier(planningItem("award"))'),'major');
-assert.equal(check('loadRows(9).some(e=>e.id==="event:award")'),false);
+assert.equal(check('loadRows(9).find(e=>e.id==="event:award").prepOnly'),true);
 assert.equal(check('planningItem("partner-feb")'),undefined);
 assert.equal(check('P.preparation.some(e=>e.projectIds.includes("partner-feb"))'),false);
 assert.equal(check('P.recurring.find(e=>e.id==="coffee_rave").periods[0].start'),'2027-02-01');

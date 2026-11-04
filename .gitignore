@@ -2,3 +2,5 @@ private-work/
 *.key
 *.secret
 __pycache__/
+
+.superdesign/tmp/

@@ -4,8 +4,8 @@ function publicDescription(e){return String(e?.description||'').split(/\n\n+/).f
 function showPublicEvent(id){
  const e=planningItem(id);if(!e)return;
  const expert=expertById.get(id),place=e.place||'',description=e.description||expert?.subtitle||'';
- const date=e.start?fullPlanDate(e.start,e.end):e.periodMonths?.length?e.dateLabel:'';
- openDialog(`<div class="detail-category"><i class="dot" style="background:${cat(e)[1]}"></i>${esc(cat(e)[0])}</div><h2 class="detail-title">${esc(e.title)}</h2><div class="detail-meta">${eventBadge(e)}${date?`<span class="badge">${esc(date)}</span>`:''}${e.start&&e.status==='proposed'?'<span class="badge pending">Предварительная дата</span>':''}${place&&!/уточняет|требует|согласован/i.test(place)?`<span class="badge">${esc(place)}</span>`:''}</div><div class="detail-description">${publicDescription({description})}</div>${e.start?`<button class="plain" data-open-month="${Number(e.start.slice(5,7))-1}">Открыть календарь месяца</button>`:''}`);
+ const date=periods(e);
+ openDialog(`<div class="detail-category"><i class="dot" style="background:${cat(e)[1]}"></i>${esc(cat(e)[0])}</div><h2 class="detail-title">${esc(e.title)}</h2><div class="detail-meta">${eventBadge(e)}${date?`<span class="badge">${esc(date)}</span>`:''}${e.start&&e.status==='proposed'?'<span class="badge pending">Предварительная дата</span>':''}${place&&!/уточняет|требует|согласован/i.test(place)?`<span class="badge">${esc(place)}</span>`:''}</div><div class="detail-description">${publicDescription({description})}</div>${e.start||e.schedule?.month?`<button class="plain" data-open-month="${e.start?Number(e.start.slice(5,7))-1:e.schedule.month-1}">Открыть календарь месяца</button>`:''}`);
 }
 function publicMonthlyProgram(m){return publicCalendarProgram(m);}
 function publicExpertOverview(m){

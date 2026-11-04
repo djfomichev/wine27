@@ -1,0 +1,227 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wine27.ru/schemas/program.schema.json",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "year",
+    "months",
+    "entities",
+    "relations",
+    "preparation",
+    "recurring",
+    "resourceRequirements",
+    "history",
+    "presentation"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "year": {
+      "const": 2027
+    },
+    "months": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 12,
+      "items": {
+        "type": "object",
+        "required": [
+          "number",
+          "name",
+          "theme",
+          "copy"
+        ],
+        "properties": {
+          "number": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 12
+          },
+          "theme": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "entities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "active",
+          "schedule",
+          "copy",
+          "programType",
+          "ownership",
+          "conceptStatus",
+          "scheduleStatus",
+          "bookingStatus",
+          "readinessStatus",
+          "publicationStatus",
+          "visibility",
+          "history"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "programType": {
+            "enum": [
+              "regular",
+              "invited",
+              "owned_major",
+              "expert"
+            ]
+          },
+          "schedule": {
+            "$ref": "#/$defs/schedule"
+          },
+          "copy": {
+            "type": "object",
+            "required": [
+              "calendar",
+              "working"
+            ]
+          }
+        }
+      }
+    },
+    "presentation": {
+      "type": "object",
+      "required": [
+        "version",
+        "slides",
+        "deckOrder",
+        "acceptedPageCount"
+      ]
+    },
+    "relations": {
+      "type": "array"
+    },
+    "preparation": {
+      "type": "array"
+    },
+    "recurring": {
+      "type": "array"
+    },
+    "history": {
+      "type": "object",
+      "required": [
+        "sourceInventory",
+        "sourceInventoryCounts"
+      ]
+    }
+  },
+  "$defs": {
+    "schedule": {
+      "type": "object",
+      "required": [
+        "kind",
+        "status"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "exact",
+            "window",
+            "within_parent",
+            "season",
+            "recurrence",
+            "conditional"
+          ]
+        },
+        "status": {
+          "type": "string"
+        },
+        "start": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "end": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "month": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1,
+          "maximum": 12
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "exact"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "start",
+              "end"
+            ],
+            "properties": {
+              "start": {
+                "type": "string",
+                "pattern": "^20[0-9]{2}-[0-9]{2}-[0-9]{2}$"
+              },
+              "end": {
+                "type": "string",
+                "pattern": "^20[0-9]{2}-[0-9]{2}-[0-9]{2}$"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "start": {
+                "type": "null"
+              },
+              "end": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "window",
+                  "within_parent"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "month",
+              "label"
+            ],
+            "properties": {
+              "month": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
