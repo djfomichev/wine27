@@ -69,7 +69,7 @@ window.CALENDAR_DATA = {
     "decisionUpdated": "2026-11-04",
     "releaseLabel": "Локальная принятая программа; сайт пока прежний",
     "sourceDocument": "output/annual-2027-final-v15/slides-approved-candidate.json",
-    "contentRevision": "670007d5debe772d1065",
+    "contentRevision": "273b00fcd5b7a0c41691",
     "schemaVersion": 1,
     "edition": "presentation"
   },
@@ -2776,11 +2776,11 @@ window.CALENDAR_DATA = {
       "id": "cabaret_series",
       "title": "«Кабаре вина»",
       "category": "music",
-      "description": "«Кабаре вина» — собственная постоянная серия представлений «Белого мыса» в эвент-холле. После премьеры шоу идёт по летнему и зимнему расписанию.\n\nМузыка, вокал и театральные номера складываются в вечернее шоу. Это самостоятельный формат, который дополняет концерты, фестивали и ресторанную программу города.\n\nГости смогут выбрать представление кабаре как главное событие вечера или включить его в программу своего уикенда.",
+      "description": "«Кабаре вина» — собственная постоянная серия представлений «Белого мыса» в эвент-холле. Шоу входит в программу города с июня по декабрь 2027 года.\n\nМузыка, вокал и театральные номера складываются в вечернее шоу. Это самостоятельный формат, который дополняет концерты, фестивали и ресторанную программу города.\n\nГости смогут выбрать представление кабаре как главное событие вечера или включить его в программу своего уикенда.",
       "sourceSlide": 73,
       "sourceKey": "cabaret_series",
-      "status": "proposed",
-      "dateLabel": "Премьера после готовности; затем летнее и зимнее расписание",
+      "status": "planned",
+      "dateLabel": "Июнь–декабрь 2027",
       "organizationType": "owned",
       "periodMonths": [
         6,
@@ -2791,7 +2791,7 @@ window.CALENDAR_DATA = {
         11,
         12
       ],
-      "datePrecision": "window",
+      "datePrecision": "season",
       "programType": "regular",
       "isFestival": false,
       "ownership": "owned",
@@ -2817,11 +2817,10 @@ window.CALENDAR_DATA = {
           11,
           12
         ],
-        "label": "Премьера после готовности; затем летнее и зимнее расписание",
-        "status": "frequency_pending",
-        "condition": "После премьеры и готовности постановки и площадки"
+        "label": "Июнь–декабрь 2027",
+        "status": "approved"
       },
-      "scheduleStatus": "frequency_pending",
+      "scheduleStatus": "approved",
       "start": null,
       "end": null
     },

@@ -4,7 +4,7 @@
 const publicRitualIds=new Set(['bell','flash','ritual']);
 const publicNonEventIds=new Set(['photo','trade','orchestra_rehearsal','orchestra_tours','city_program_meeting','monthly_program_lock']);
 
-function publicRhythmItem(r){const c=r.copy?.calendar||[r.title,r.description,r.location,'city'];return {id:'rhythm-'+r.id,title:c[0],description:c[1],place:c[2],category:c[3],rhythmId:r.id,status:'proposed'};}
+function publicRhythmItem(r){const c=r.copy?.calendar||[r.title,r.description,r.location,'city'];return {id:'rhythm-'+r.id,title:c[0],description:c[1],place:c[2],category:c[3],rhythmId:r.id,status:r.status==='planned'?'planned':'proposed'};}
 function publicFormats(m){return P.recurring.filter(r=>!publicNonEventIds.has(r.id)&&scheduleInMonth(r,m).length&&matches(publicRhythmItem(r)));}
 function publicRhythmSummary(r,m){
  const labels={coffee_rave:m>=4&&m<=8?'Каждую субботу':'2-я суббота месяца',anatoliy_meetings:m===0?'24 января':'2-е и 4-е воскресенье',wineclub:'Последний четверг месяца',wine_week:'Каждый понедельник',winemaker_in_city:'Пятница и суббота',wine_shop_residencies:'Новая команда каждую неделю',bar:'Пятница и суббота',square_music:'Пятница, суббота и воскресенье',dance:'Вторник и среда вечером',stage:'Суббота вечером и воскресенье днём',rotunda_morning:'Вторник и четверг утром',cabaret:r.dayLabel,hall:'По субботам',djs:'Резидент на 1 месяц',beach:'Пятница, суббота и воскресенье',rooftop:'Четверг и суббота',cinema:'По средам',science:'По субботам',book_club:'1-е и 3-е воскресенье',city_clubs:'Суббота и воскресенье',radio:m>=4&&m<=8?'Ежедневно':'Суббота и воскресенье',bell:'Ежедневно на закате',flash:'Ежедневно на закате',ritual:'Ежедневно · Wine o’clock в 18:00'};
@@ -13,6 +13,7 @@ function publicRhythmSummary(r,m){
 function publicRegularPreview(m){
  const groups=new Map();
  for(const r of publicFormats(m)){
+  if(r.sourceIds.some(id=>periodPrograms(m).some(p=>p.id===id)))continue;
   const item=publicRhythmItem(r),label=publicRitualIds.has(r.id)?'Ритуалы':cat(item)[0];
   if(!groups.has(label))groups.set(label,[]);
   groups.get(label).push(item.title);
@@ -56,7 +57,6 @@ function publicRhythmTime(r,p,date){
  if(r.id==='wine_week')return 'Подборка недели';
  if(r.id==='winemaker_in_city')return day===5?'18:00':'16:00';
  if(r.id==='stage')return day===7?'12:00–13:00':m>=6&&m<=8?'19:00–20:00':'17:00–18:00';
- if(r.id==='cabaret')return m===10?(day===4?'19:30':'18:00'):(day===4?'20:30':'19:30');
  return p.time?.match(/\d{1,2}:\d{2}(?:[–—-]\d{1,2}:\d{2})?(?: и \d{1,2}:\d{2}[–—-]\d{1,2}:\d{2})?/)?.[0]||'';
 }
 function publicDailyFormats(date){
@@ -99,8 +99,8 @@ function showPublicRhythm(id,m){
  const r=P.recurring.find(r=>r.id===id);if(!r)return;
  const e=publicRhythmItem(r),days=Array.from({length:daysIn(m)},(_,i)=>dateOf(m,i+1)).map(date=>publicDailyFormats(date).find(e=>e.rhythmId===id)).filter(Boolean);
  const slots=calendarItems().filter(item=>item.rhythmId===id&&inMonth(item,m));
- const dates=days.length?`<div class="city-rhythm-dates">${days.map(d=>`<button data-city-day="${d.date}" aria-label="${esc(fullPlanDate(d.date))}: открыть программу дня"><b>${Number(d.date.slice(8))}</b><span>${esc(d.time)}</span></button>`).join('')}</div>`:slots.length?`<div class="search-event-list">${slots.map(item=>overviewEvent(item,m)).join('')}</div>`:`<div class="city-rhythm-period"><b>Период программы</b><p>${scheduleInMonth(r,m).map(p=>esc(fullPlanDate(p.start,p.end))).join(' · ')}</p><p>Отдельные даты выступлений уточняются.</p></div>`;
- openDialog(`<div class="detail-category">${publicRitualIds.has(id)?'Городской ритуал':'Регулярная программа'} · ${esc(D.months[m].name)}</div><h2 class="detail-title">${esc(e.title)}</h2><div class="detail-meta"><span class="badge">${esc(e.place)}</span><span class="badge pending">Предварительное расписание</span></div><div class="detail-description"><p>${esc(e.description)}</p><p>${esc(publicRhythmSummary(r,m))}</p></div>${dates}`);
+ const dates=days.length?`<div class="city-rhythm-dates">${days.map(d=>`<button data-city-day="${d.date}" aria-label="${esc(fullPlanDate(d.date))}: открыть программу дня"><b>${Number(d.date.slice(8))}</b><span>${esc(d.time)}</span></button>`).join('')}</div>`:slots.length?`<div class="search-event-list">${slots.map(item=>overviewEvent(item,m)).join('')}</div>`:`<div class="city-rhythm-period"><b>Период программы</b><p>${scheduleInMonth(r,m).map(p=>esc(planPeriod(p))).join(' · ')}</p>${r.scheduleStatus==='approved'?'':'<p>Отдельные даты выступлений уточняются.</p>'}</div>`;
+ openDialog(`<div class="detail-category">${publicRitualIds.has(id)?'Городской ритуал':'Регулярная программа'} · ${esc(D.months[m].name)}</div><h2 class="detail-title">${esc(e.title)}</h2><div class="detail-meta"><span class="badge">${esc(e.place)}</span>${r.scheduleStatus==='approved'?'':'<span class="badge pending">Предварительное расписание</span>'}</div><div class="detail-description"><p>${esc(e.description)}</p><p>${esc(publicRhythmSummary(r,m))}</p></div>${dates}`);
 }
 function publicMobileCalendar(m){return Array.from({length:daysIn(m)},(_,i)=>{const date=dateOf(m,i+1),events=monthEvents(m).filter(e=>e.start<=date&&e.end>=date),regular=publicDailyFormats(date),hol=D.holidays.find(h=>h.start<=date&&h.end>=date);if(!events.length&&!regular.length)return hol&&!state.query&&!state.filters.length?`<div class="mobile-date-card city-mobile-day date-holiday"><span class="mobile-date-range">${i+1}</span><span><b>${esc(hol.title)}</b><small>Выходной день</small></span></div>`:'';const titles=events.slice(0,2).map(e=>e.title).join(' · ');return `<button class="mobile-date-card city-mobile-day ${hol?'date-holiday':''}" data-city-day="${date}"><span class="mobile-date-range">${i+1}<small>${['Вс','Пн','Вт','Ср','Чт','Пт','Сб'][weekday(date)]}</small></span><span><b>${esc(titles||hol?.title||'Регулярная программа')}</b><small>${events.length?calendarCount(events.length,'событие','события','событий')+' · ':''}${calendarCount(regular.length,'регулярный формат','регулярных формата','регулярных форматов')}${regular.some(e=>e.isRitual)?' · ритуалы':''}</small></span><span aria-hidden="true">+</span></button>`;}).join('');}
 document.addEventListener('click',event=>{if(WORKING)return;const b=event.target.closest('button');if(!b)return;if(b.dataset.cityDay)showPublicDay(b.dataset.cityDay);if(b.dataset.cityRhythm)showPublicRhythm(b.dataset.cityRhythm,Number(b.dataset.cityMonth??state.month));});

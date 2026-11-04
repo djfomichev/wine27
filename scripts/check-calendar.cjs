@@ -162,7 +162,7 @@ for(let m=0;m<12;m++){
  assert.equal(check(`loadRows(${m}).some(r=>r.id.startsWith('event:embedded-')||r.id.startsWith('event:slot-'))`),false,'Program components must not add production twice');
 }
 check('showEvent("embedded-height")');assert.match(el('#detailContent').innerHTML,/Высота/);assert.match(el('#detailContent').innerHTML,/14 августа/);
-check('showRhythm("cabaret")');assert.match(el('#detailContent').innerHTML,/После премьеры|После готовности|частот|сезон/i);assert.match(el('#detailContent').innerHTML,/частот|сетк/i);
+check('showRhythm("cabaret")');assert.match(el('#detailContent').innerHTML,/Июнь–декабрь 2027/);assert.doesNotMatch(el('#detailContent').innerHTML,/После премьеры|После готовности/i);
 clickData({planMonth:'7'});assert.equal(check('state.view'),'plan');assert.equal(check('state.planMonth'),7);assert.match(el('#planView').innerHTML,/Августовская музыкальная программа/);
 check('location.hash="#plan";readHash()');assert.equal(check('state.view'),'plan');
 console.log('PASS: all original projects scheduled or assigned preparation, no invented openings, readable cross-year dates, embedded programs and regular slots counted once.');

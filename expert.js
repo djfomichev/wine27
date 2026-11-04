@@ -7,6 +7,7 @@ const orgLabels={regular:'Постоянная программа',invited:'Пр
 function isExpertItem(e){return !!e.expertId||e.category==='expert';}
 function projectInMonth(e,m){const s=e.schedule;return e.active!==false&&!e.start&&(s?['window','within_parent'].includes(s.kind)&&s.month===m+1:e.month===m+1);}
 function periodPrograms(m){return D.projects.filter(p=>p.periodMonths?.includes(m+1)&&p.programType==='regular'&&matches(p));}
+function periodProgramButton(p){return `<button class="calendar-period" data-event="${esc(p.id)}">${esc(p.title)}<small>${esc(p.scheduleStatus==='approved'?p.dateLabel:'Сезонная серия · график уточняется')}</small></button>`;}
 function expertMonthProjects(m){return X.projects.filter(p=>p.preferred_month_proposal===m+1);}
 function expertMatches(p){
  const query=state.query.replace(/ё/g,'е');
