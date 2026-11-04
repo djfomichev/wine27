@@ -1,0 +1,31 @@
+name: Import approved presentation assets
+on:
+  push:
+    paths: ['.github/workflows/import-presentation.yml']
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download and verify the approved public artifacts
+        run: |
+          curl --fail --location --retry 3 'https://events.fomichev.music/wine27-presentation-transfer-20261104/assets-v15.tar.gz' -o /tmp/assets.tar.gz
+          echo 'dcfb50d7c6f78cd1caf8bdb38ded1170694529dc8c106b3c5c3d6446f29cbb6b  /tmp/assets.tar.gz' | sha256sum -c -
+          python3 - <<'PYTHON'
+          import tarfile
+          with tarfile.open('/tmp/assets.tar.gz') as tar:
+              for item in tar.getmembers():
+                  assert item.isfile() and item.name.startswith('presentation/assets/') and '..' not in item.name.split('/')
+                  assert item.name.endswith(('.pdf','.jpg'))
+              tar.extractall('.',filter='data')
+          PYTHON
+          echo '0bc9f54581a1dbf67ef86305b7a614dc6d7b8592fd5207d9372ebd58c269d905  presentation/assets/BelyiMys_Season_2027_v15.pdf' | sha256sum -c -
+      - name: Save artifacts without changing the current calendar
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add presentation/assets
+          git commit -m 'Store approved v15 PDF and original slide previews'
+          git push origin HEAD:main
