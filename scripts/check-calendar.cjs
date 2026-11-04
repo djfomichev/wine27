@@ -80,8 +80,8 @@ assert.match(check('D.sources[0].title'),/v10: 79/);
 assert.match(check('D.sources.find(s=>s.title.startsWith("Погодная")).title'),/слайд 38/);
 check('state.filters=[];state.query="";state.filters=[]');
 for(let m=0;m<12;m++){
- assert.equal(check(`periodPrograms(${m}).some(p=>p.id==='cabaret_series')`),m>=5&&m<=11);
- assert.equal(check(`activeLoad(${m}).some(p=>p.id==='cabaret')`),m>=5&&m<=11);
+ assert.equal(check(`periodPrograms(${m}).some(p=>p.id==='cabaret_series')`),m>=4&&m<=9);
+ assert.equal(check(`activeLoad(${m}).some(p=>p.id==='cabaret')`),m>=4&&m<=9);
 }
 check('state.filters=["expert"];setView("year")');
 assert.match(el('#footerNote').textContent,/С рабочими датами: 16 · Без точных дней: 0/);
@@ -162,7 +162,7 @@ for(let m=0;m<12;m++){
  assert.equal(check(`loadRows(${m}).some(r=>r.id.startsWith('event:embedded-')||r.id.startsWith('event:slot-'))`),false,'Program components must not add production twice');
 }
 check('showEvent("embedded-height")');assert.match(el('#detailContent').innerHTML,/Высота/);assert.match(el('#detailContent').innerHTML,/14 августа/);
-check('showRhythm("cabaret")');assert.match(el('#detailContent').innerHTML,/Июнь–декабрь 2027/);assert.doesNotMatch(el('#detailContent').innerHTML,/После премьеры|После готовности/i);
+check('showRhythm("cabaret")');assert.match(el('#detailContent').innerHTML,/Май–октябрь 2027/);assert.doesNotMatch(el('#detailContent').innerHTML,/После премьеры|После готовности/i);
 clickData({planMonth:'7'});assert.equal(check('state.view'),'plan');assert.equal(check('state.planMonth'),7);assert.match(el('#planView').innerHTML,/Августовская музыкальная программа/);
 check('location.hash="#plan";readHash()');assert.equal(check('state.view'),'plan');
 console.log('PASS: all original projects scheduled or assigned preparation, no invented openings, readable cross-year dates, embedded programs and regular slots counted once.');

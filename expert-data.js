@@ -489,5 +489,5 @@ window.EXPERT_DATA = {
   "revision": "2026-11-04",
   "title": "Отраслевая и экспертная программа",
   "team": [],
-  "contentRevision": "273b00fcd5b7a0c41691"
+  "contentRevision": "21ae6fa67bf9933dc15e"
 };

@@ -17,18 +17,18 @@ for(const [id,month] of Object.entries(moved)){
  assert(p.resourceRequirements.scheduleChanges[id]);
 }
 // Approved cabaret belongs to every declared month, without invented daily shows.
-const cabaret=by.get('cabaret_series');assert.equal(cabaret.schedule.status,'approved');assert.deepEqual(cabaret.schedule.months,[6,7,8,9,10,11,12]);assert.equal(cabaret.schedule.start,null);assert.equal(cabaret.schedule.end,null);assert(!cabaret.schedule.condition);
+const cabaret=by.get('cabaret_series');assert.equal(cabaret.schedule.status,'approved');assert.deepEqual(cabaret.schedule.months,[5,6,7,8,9,10]);assert.equal(cabaret.schedule.start,null);assert.equal(cabaret.schedule.end,null);assert(!cabaret.schedule.condition);
 for(const ed of [pub,work]){
  ed.run("state.query='';state.filters=[];setView('load')");
- assert.equal((ed.el('#loadView').innerHTML.match(/data-event="cabaret_series"/g)||[]).length,7);
- for(let m=0;m<12;m++)assert.equal(ed.run(`periodPrograms(${m}).some(e=>e.id==='cabaret_series')`),m>=5);
+ assert.equal((ed.el('#loadView').innerHTML.match(/data-event="cabaret_series"/g)||[]).length,6);
+ for(let m=0;m<12;m++)assert.equal(ed.run(`periodPrograms(${m}).some(e=>e.id==='cabaret_series')`),m>=4&&m<=9);
  ed.run('showRhythm("cabaret")');assert.doesNotMatch(ed.el('#detailContent').innerHTML,/после готовности|после премьеры|срок требует решения|предложение/i);
 }
-pub.run('showPublicRhythm("cabaret",5)');assert.match(pub.el('#detailContent').innerHTML,/Июнь–сентябрь 2027/);assert.doesNotMatch(pub.el('#detailContent').innerHTML,/предварительное расписание|после готовности|после премьеры|срок требует решения/i);
-pub.run('state.filters=["music"];setView("load")');assert.equal((pub.el('#loadView').innerHTML.match(/data-event="cabaret_series"/g)||[]).length,7);
+pub.run('showPublicRhythm("cabaret",5)');assert.match(pub.el('#detailContent').innerHTML,/Май–октябрь 2027/);assert.doesNotMatch(pub.el('#detailContent').innerHTML,/предварительное расписание|после готовности|после премьеры|срок требует решения/i);
+pub.run('state.filters=["music"];setView("load")');assert.equal((pub.el('#loadView').innerHTML.match(/data-event="cabaret_series"/g)||[]).length,6);
 pub.run('state.filters=["wine"];setView("load")');assert(!pub.el('#loadView').innerHTML.includes('data-event="cabaret_series"'));
 pub.run('state.filters=[]');assert.equal(pub.run('publicDailyFormats("2027-06-06").some(e=>e.rhythmId==="cabaret")'),false);
-pub.run('state.query="кабаре вина";setView("load")');assert.equal(pub.run('publicSearchMonths().length'),7);pub.run('state.query=""');
+pub.run('state.query="кабаре вина";setView("load")');assert.equal(pub.run('publicSearchMonths().length'),6);pub.run('state.query=""');
 assert.equal(by.get('fire-grape').parentId,'craft');assert.equal(by.get('wine-families').parentId,'south-table');assert.equal(by.get('flagman-weekend').parentId,'south-table');assert.equal(by.get('award').parentId,'wineweek');
 assert.equal(p.expertPortfolio.projects.filter(e=>!e.parent_id).length,15);assert.equal(p.expertPortfolio.projects.find(e=>e.id==='exp_sparkling_session').first_year,null);
 assert(p.preparation.find(r=>r.id==='anchovy-production').schedule.months.includes(10));assert(p.preparation.find(r=>r.id==='city-phase-39').schedule.months.includes(5));assert.equal(p.preparation.find(r=>r.id==='cheese-teardown').schedule.relation,'after');
