@@ -69,7 +69,7 @@ window.CALENDAR_DATA = {
     "decisionUpdated": "2026-11-04",
     "releaseLabel": "Локальная принятая программа; сайт пока прежний",
     "sourceDocument": "output/annual-2027-final-v15/slides-approved-candidate.json",
-    "contentRevision": "160eac93b19bd1596d3a",
+    "contentRevision": "670007d5debe772d1065",
     "schemaVersion": 1,
     "edition": "presentation"
   },

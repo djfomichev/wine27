@@ -16,6 +16,7 @@ def build():
         for f in ['build_scene.py','render_isolated.py','build_viewer.py','render.swift','font-metrics.json','baseline-slides.json','visual-map-01-36.json','visual-map-37-73.json','layout-spec.json','assets-manifest.json']:
             if (source/f).exists():shutil.copy2(source/f,deck/f)
         shutil.copytree(source/'assets',deck/'assets',dirs_exist_ok=True)
+        scene_script=deck/'build_scene.py';scene_script.write_text(scene_script.read_text().replace('R=O.parents[1]', 'R=Path('+repr(str(source.parents[1]))+')'))
         (deck/'slides.json').write_text(json.dumps(slides,ensure_ascii=False,indent=2));(deck/'canonical-months.json').write_text(json.dumps(months,ensure_ascii=False,indent=2))
         f=deck/'build_viewer.py';s=f.read_text().replace('len(records) != 77','len(records) != '+str(len(slides))).replace('Expected the complete 77-slide presentation','Incomplete approved slide sequence');f.write_text(s)
         for script in ['build_scene.py','render_isolated.py','build_viewer.py']:subprocess.run(['python3',str(deck/script)],check=True)
@@ -27,7 +28,7 @@ def build():
     pdfname=f'BelyiMys_Season_2027_v{version}.pdf';destination=assets/pdfname
     if destination.exists() and digest(destination)!=sha:raise ValueError('Bump presentation.version before replacing an already packaged PDF')
     shutil.copy2(pdf,destination)
-    renderkey=hashlib.sha256(stable({'slides':slides,'months':months}).encode()).hexdigest()[:16];folder=assets/f'v{version}-{renderkey}';folder.mkdir(exist_ok=True)
+    renderkey=sha[:16];folder=assets/f'v{version}-{renderkey}';folder.mkdir(exist_ok=True)
     records=[]
     from PIL import Image
     for i,s in enumerate(slides,1):

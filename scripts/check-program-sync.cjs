@@ -3,6 +3,7 @@ const p=JSON.parse(fs.readFileSync('private-work/program.json')),by=new Map(p.en
 const ledger=p.history.sourceInventory;assert.equal(ledger.length,253);assert.equal(new Set(ledger.map(r=>r.sourceGroup+':'+r.sourceId)).size,253);for(const r of ledger)assert(r.disposition&&r.targetId);
 assert.equal(by.size,91);assert.equal(p.entities.filter(e=>e.active).length,90);assert.equal(by.get('project-12').active,false);assert.equal(by.get('project-11').active,true);
 for(const id of ['city-phase-25','city-phase-26','city-phase-27'])assert.equal(p.preparation.find(r=>r.id===id).active,false);
+assert(p.presentation.monthsMetadata.intro);
 const moved={barin:1,'fire-grape':2,cheese:3,'south-table':9,'wine-families':9,'flagman-weekend':9,anchovy:11,'exhibition-nov':11};
 const harness=fs.readFileSync('scripts/check-editions.cjs','utf8').split('const pub=edition(false)')[0].replace("const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');",'');
 const scope={fs,vm,assert,console,URL,Blob};vm.createContext(scope);vm.runInContext(harness+';this.pub=edition(false);this.work=edition(true)',scope);const {pub,work}=scope;

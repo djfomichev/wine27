@@ -94,4 +94,4 @@ def presentation(program):
             index=int(s['key'].rsplit('_',1)[1])-1
             if any(m['theme']!=m['copy']['deck'].get('initialTheme',m['theme']) for m in program['months'][index*4:index*4+4]):
                 s['text']='\n\n'.join(m['month']+'. '+m['title']+'\n'+m['text'] for m in months[index*4:index*4+4])
-    return slides,{'schema_version':1,'year':program['year'],'months':months},bindings
+    return slides,{**copy.deepcopy(program['presentation']['monthsMetadata']),'year':program['year'],'months':months},bindings
