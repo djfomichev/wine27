@@ -1,0 +1,31 @@
+name: Import approved presentation assets
+on:
+  push:
+    paths: ['.github/workflows/import-presentation.yml']
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download and verify the approved public artifacts
+        run: |
+          curl --fail --location --retry 3 'https://events.fomichev.music/wine27-presentation-transfer-20261104/assets-v17.tar.gz' -o /tmp/assets.tar.gz
+          echo 'b79c490e00fe8631f681c770a469d2252b198050d0a9601d9c396dc2cc9a3d42  /tmp/assets.tar.gz' | sha256sum -c -
+          python3 - <<'PYTHON'
+          import tarfile
+          with tarfile.open('/tmp/assets.tar.gz') as tar:
+              for item in tar.getmembers():
+                  assert item.isfile() and item.name.startswith('presentation/assets/') and '..' not in item.name.split('/')
+                  assert item.name.endswith(('.pdf','.jpg'))
+              tar.extractall('.',filter='data')
+          PYTHON
+          echo '941b334f7b6bca8a7b8efab3492337252de33793c5653ef49c61de5e18adca5f  presentation/assets/BelyiMys_Season_2027_v17.pdf' | sha256sum -c -
+      - name: Save artifacts without changing the current calendar
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add presentation/assets
+          git commit -m 'Set cabaret season to May–October in presentation v17'
+          git push origin HEAD:main
