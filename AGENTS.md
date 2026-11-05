@@ -111,3 +111,5 @@ Never overwrite the existing resource scenario storage. Prior rows stay exportab
 Latest direct navigation correction, 5 November 2026: remove every presentation link from the main calendar. Preserve the separate presentation files; the user will revise them later as an independent section, like /names/. Do not rebuild or promote that deck as part of this calendar replacement.
 
 Names-page spelling (5 November 2026): write «Парадиз» in Russian in every visible heading and description, as directly requested by the user.
+
+Director edition follow-up, 5 November 2026: restore the established colour coding in both year and month cards: festivals yellow, major events wine, regular programme mint, experts dark green. Keep the rejected legend absent. Show complete multi-day periods immediately on cards. Exhibition runs are 5 February–31 March and 12 November–19 December, derived from MASTER special_conditions; distinguish opening date and exhibition period without moving or multiplying canonical event instances.

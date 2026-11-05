@@ -33,3 +33,5 @@ Known source inconsistency: `w27-checked-0222-0053` has consistent primary sched
 ## Rollback
 
 The pre-import release is `0ad1e09e6508bb24`, commit `268ad029ff88553045706bb936ada528f8921f15`. The owner's dated local backup includes the exact canonical source and its encrypted payload. Recover only calendar files from that checkpoint, preserving subsequent independent `/names/` and presentation changes, then atomically publish those assets with their matching HTML/version and encrypted payload. Source recovery and old payload decryption were tested successfully before deployment.
+
+Follow-up display correction: the director calendar uses the established festival/major/regular/expert colours. Complete exhibition periods (5 February–31 March and 12 November–19 December) are derived from the MASTER special conditions and shown on the cards alongside their opening dates. Canonical occurrence dates and daily counts remain unchanged.

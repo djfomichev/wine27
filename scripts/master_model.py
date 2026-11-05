@@ -52,7 +52,17 @@ def sync(p,out=ROOT):
   key=hashlib.sha256(text.encode('utf-8')).hexdigest()
   assert key in director_copy,'Exhibition copy must be reviewed before publication: '+key
   return director_copy[key]
- revision=digest({'master':p,'expertSupplement':supp,'directorCopy':director_copy})[:20]
+ # Display the complete exhibition run without moving/expanding opening instances.
+ month_numbers={m['genitive']:m['month'] for m in p['month_metadata']}
+ spring=re.search(r'(\d{1,2})\s*([а-я]+)\s*[–-]\s*(\d{1,2})\s*([а-я]+)',p['special_conditions']['expo']['spring'])
+ autumn=re.search(r'до\s*(\d{1,2})\s*([а-я]+)',p['special_conditions']['expo']['autumn'])
+ assert spring and autumn,'Exhibition display periods require explicit MASTER bounds'
+ years={y['id']:y for y in p['year_events']}
+ periods={
+  'exhibition-feb':{'start':years['exhibition-feb']['start_date'],'end':f"2027-{month_numbers[spring[4]]:02}-{int(spring[3]):02}",'opening':years['exhibition-feb']['start_date']},
+  'exhibition-nov':{'start':years['exhibition-nov']['start_date'],'end':f"2027-{month_numbers[autumn[2]]:02}-{int(autumn[1]):02}",'opening':years['exhibition-nov']['start_date']}
+ }
+ revision=digest({'master':p,'expertSupplement':supp,'directorCopy':director_copy,'displayPeriods':periods})[:20]
  (out/'private-work/director-copy.json').write_text(json.dumps(director_copy,ensure_ascii=False,indent=2)+'\n')
  for working in (False,True):
   data=copy.deepcopy(p) if working else {k:copy.deepcopy(p[k]) for k in ['schema_version','year','timezone','locale','events','year_events','venues','month_metadata','holiday_periods','shortened_workdays']}
@@ -65,6 +75,7 @@ def sync(p,out=ROOT):
    for m in data['month_metadata']:m.pop('program_logic',None)
   for e in data['events']:
    e['categories']=event_categories(e);e['guest_conditions']=guest_conditions(e)
+  data['display_periods']=copy.deepcopy(periods)
   byid={e['id']:e for e in data['events']}
   for y in data['year_events']:
    y['categories']=list(dict.fromkeys(c for i in y['event_ids'] for c in byid[i]['categories'])) or ['city']

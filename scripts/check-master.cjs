@@ -18,6 +18,11 @@ el('meta[name="wine27-content"]').content=rev;
 let savedWrites=0;const stored='{"rows":{"0:event:legacy":{"people":4}},"capacity":{"0":100},"extra":[]}';
 Object.assign(ctx,{document:{querySelector:el,querySelectorAll:()=>[],addEventListener(){},activeElement:null},location:{hash:'#load',pathname:'/'},history:{replaceState(){}},localStorage:{getItem:()=>stored,setItem(){savedWrites++}},URL,Blob,Intl,console});ctx.window.addEventListener=()=>{};ctx.window.scrollTo=()=>{};
 vm.runInContext(fs.readFileSync('master-app.js','utf8'),ctx);
+assert.deepEqual(D.display_periods['exhibition-feb'],{start:'2027-02-05',end:'2027-03-31',opening:'2027-02-05'});
+assert.deepEqual(D.display_periods['exhibition-nov'],{start:'2027-11-12',end:'2027-12-19',opening:'2027-11-12'});
+vm.runInContext("openYear('exhibition-feb')",ctx);assert(el('#detailContent').innerHTML.includes('31 марта'));
+vm.runInContext("setView('month',1)",ctx);assert(el('#dailyAgenda').innerHTML.includes('5 февраля — 31 марта'));assert(el('#dailyAgenda').innerHTML.includes('tone-major'));assert(el('#dailyAgenda').innerHTML.includes('tone-expert'));
+vm.runInContext("setView('month',4)",ctx);assert(el('#dailyAgenda').innerHTML.includes('tone-festival'));assert(el('#dailyAgenda').innerHTML.includes('tone-regular'));
 const api=ctx.window.WINE27_MASTER;assert.equal(api.allEvents.length,1298);assert.equal(api.allYears.length,74);
 let days=0,rendered=new Set(),appearances=new Map();
 for(let m=0;m<12;m++){
