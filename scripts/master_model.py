@@ -33,6 +33,8 @@ FESTIVALS={'masters','rose','cheese','city-reads','mayovka','shtil','terroir','c
 def event_categories(e):
  c=list(KIND_CATS.get(e['kind'],['city']))
  if e['kind']=='cabaret':c+=['wine','music']
+ if e['kind']=='cinematica' or (e['kind'] in ('special','festival_day') and re.search(r'\bконцерт\b',e['title'],re.I)):
+  c.append('music')
  if any(y in ('award','wineforum') for y in e.get('year_event_ids',[])):c+=['expert','wine']
  if any(y in FESTIVALS for y in e.get('year_event_ids',[])):c+=['festival']
  if 'HURMA' in e['title']:c+=['partner']
@@ -79,7 +81,9 @@ def sync(p,out=ROOT):
   byid={e['id']:e for e in data['events']}
   for y in data['year_events']:
    y['categories']=list(dict.fromkeys(c for i in y['event_ids'] for c in byid[i]['categories'])) or ['city']
-   if y['id'] in FESTIVALS:y['categories']=list(dict.fromkeys(y['categories']+['festival']))
+   if y['id'] in FESTIVALS:
+    y['is_festival']=True
+    y['categories']=list(dict.fromkeys(y['categories']+['festival']))
   overlay=copy.deepcopy(supp['working' if working else 'public'])
   overlay['events']=[e for e in overlay['events'] if e['id'] not in supp.get('masterBindings',{})]
   if not working:
