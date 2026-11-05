@@ -104,3 +104,4 @@ body.master-calendar{color:#111;background:#fff;margin:0;font-family:'Hauss', 'A
 .filter-dot{width:8px;height:8px;display:inline-block;border-radius:50%;flex:0 0 8px;background:#111}.filter-wine{background:#b41432}.filter-music{background:#008264}.filter-gastro,.filter-festival{background:#ffc864}.filter-art{background:#ff6269}.filter-city{background:#3cc896}.filter-expert{background:#004632}
 @media(min-width:701px){.master-calendar .filter-chip{gap:7px;padding:13px 12px}.master-calendar .month-picker{width:124px}}
 @media(min-width:701px){.master-calendar .filter-chip{padding-left:11px;padding-right:11px}}
+.day-program{margin:0 0 8px;padding:14px 18px;background:#ffebd7;border-left:4px solid #ffc864;border-radius:5px;color:#004632;font-family:HaussWide,sans-serif;font-size:17px;line-height:1.35}

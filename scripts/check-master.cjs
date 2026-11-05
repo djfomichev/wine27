@@ -31,6 +31,11 @@ for(let m=0;m<12;m++){
  const ids=[...html.matchAll(/data-event="(.*?)"/g)].map(x=>x[1]);for(const id of ids){rendered.add(id);appearances.set(id,(appearances.get(id)||0)+1);}
  for(const e of source.events.filter(e=>e.date.slice(5,7)===String(m+1).padStart(2,'0')))assert(ids.includes(e.id));
 }
+vm.runInContext("state.filters=[];state.query='';setView('month',0)",ctx);
+for(const section of el('#dailyAgenda').innerHTML.split('<section class="agenda-day').slice(1)){
+ const date=section.match(/data-date="([^"]+)"/)[1];
+ if(date<='2027-01-10'){assert(section.includes('Новогодняя программа'));assert(!section.includes('Отдельных событий нет'));}
+}
 assert.equal(days,365);assert.equal(rendered.size,1298);for(const e of source.events)assert.equal(appearances.get(e.id),1,e.id+" must appear only on its start date");
 for(const e of source.events){
  if(['sunset','after_bell'].includes(e.time_anchor))assert.equal(api.timeLabel(e),e.display_time);
