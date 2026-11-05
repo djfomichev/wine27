@@ -11,7 +11,7 @@ p=json.loads((ROOT/'work/payload.json').read_text())
 raw=AESGCM(decode(secret)).decrypt(decode(p['iv']),decode(p['ciphertext']),('wine27-work-v1:'+p['release']).encode())
 page=json.loads(gzip.decompress(raw))
 target=ROOT/'private-work';target.mkdir(exist_ok=True)
-for name in ['data.js','expert-data.js','planning-data.js','index.html','program.json']:
+for name in ['data.js','expert-data.js','planning-data.js','index.html','program.json','expert-supplement.json','director-copy.json']:
     if name in page['sources']:(target/name).write_text(page['sources'][name])
 if 'program.json' not in page['sources']:print('Legacy payload restored. Run the reviewed v15 migration before synchronization.')
 print('Working sources restored locally. Do not publish private-work/.')

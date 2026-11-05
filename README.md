@@ -1,3 +1,7 @@
+# Current programme: MASTER 2027
+
+The calendar was replaced by the user’s final MASTER on 5 November 2026: 1,283 dated events and 59 year entries, with the explicitly retained expert supplement. [Current model, build, checks and rollback](docs/master-import.md). The earlier implementation notes below are historical.
+
 # Белый мыс · Календарь команды 2027
 
 https://wine27.ru/ показывает весь событийный сценарий: фестивали, уикенды, резиденции, регулярную программу и ритуалы. Даты, которые ещё не закреплены, отмечены как предварительные. Каталога проектов и процессов подготовки в этой версии нет. Режимы просмотра: весь год, календарь и месяц; по дню открывается полная программа.

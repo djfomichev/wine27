@@ -8,7 +8,7 @@ async function main(){
  const decoded=await webcrypto.subtle.decrypt({name:'AES-GCM',iv,additionalData:aad},imported,cipher);
  const content=await new Response(new Blob([decoded]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
  const page=JSON.parse(content);assert.equal(page.release,payload.release);
- for(const name of ['data.js','planning-data.js','expert-data.js','index.html','program.json'])assert.equal(page.sources[name],fs.readFileSync('private-work/'+name,'utf8'));
+ for(const name of ['data.js','planning-data.js','expert-data.js','index.html','program.json','expert-supplement.json','director-copy.json'])assert.equal(page.sources[name],fs.readFileSync('private-work/'+name,'utf8'));
  assert.match(page.html,/Рассчитать команду/);assert.match(page.html,/lockWork/);
  assert.doesNotMatch(page.html,/<script src=/);assert.doesNotMatch(page.html,/src="private-work\//);
  const wrong=Buffer.from(raw);wrong[0]^=1;

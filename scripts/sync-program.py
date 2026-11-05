@@ -5,7 +5,11 @@ from pathlib import Path
 from program_model import ROOT,validate,revision,editions,presentation,js
 def sync(source=None,out=None):
     source=source or ROOT/'private-work/program.json';out=out or ROOT
-    program=json.loads(source.read_text());validate(program);rev=revision(program)
+    program=json.loads(source.read_text())
+    if program.get('schema_version')=='wine27-master-2027/v1':
+        from master_model import sync as sync_master
+        return sync_master(program,out)
+    validate(program);rev=revision(program)
     (out/'private-work/presentation').mkdir(parents=True,exist_ok=True)
     for name,(d,p,x) in editions(program).items():
         dest=out if name=='public' else out/'private-work'

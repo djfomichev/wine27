@@ -1,3 +1,4 @@
+if(JSON.parse(require('node:fs').readFileSync('program-version.json')).schemaVersion==='wine27-master-2027/v1'){require('./check-master.cjs')}else{
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 function edition(working){
  const elements=new Map(),handlers={};
@@ -216,3 +217,5 @@ console.log('PASS: mobile month selector, additive filter sheet and ALL preserve
  ed.el('#filterDialog').open=false;await poll();assert.equal(reloads,1,'The pending update applies after closing');
  console.log('PASS: open dialogs postpone auto-update; a pending release applies after closing.');
 })().catch(e=>{console.error(e);process.exitCode=1;});
+
+}

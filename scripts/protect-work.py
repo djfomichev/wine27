@@ -12,7 +12,7 @@ if not key_path.exists():
 secret=next(line.strip() for line in key_path.read_text().splitlines() if re.fullmatch(r'[A-Za-z0-9_-]{43}',line.strip()))
 key=base64.urlsafe_b64decode(secret+'=')
 release=json.loads((ROOT/'site-version.json').read_text())['version']
-source_names=['data.js','expert-data.js','planning-data.js','index.html','program.json']
+source_names=['data.js','expert-data.js','planning-data.js','index.html','program.json','expert-supplement.json','director-copy.json']
 sources={name:(ROOT/'private-work'/name).read_text() for name in source_names}
 html=sources['index.html']
 html=html.replace('</header>','<button id="lockWork" class="plain">Закрыть доступ</button></header>',1)

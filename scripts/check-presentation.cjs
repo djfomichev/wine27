@@ -1,3 +1,6 @@
+if(JSON.parse(require('node:fs').readFileSync('program-version.json')).schemaVersion==='wine27-master-2027/v1'){
+ const fs=require('node:fs'),assert=require('node:assert/strict'),crypto=require('node:crypto');const m=JSON.parse(fs.readFileSync('presentation/manifest.json'));assert.equal(m.pageCount,77);assert.equal(crypto.createHash('sha256').update(fs.readFileSync(m.pdfUrl.slice(1))).digest('hex'),m.pdfSha256);assert.equal(m.releaseId,JSON.parse(fs.readFileSync('presentation/site-version.json')).version);console.log('PASS: dated presentation snapshot preserved independently, PDF hash unchanged.');
+}else{
 const fs=require('node:fs'),assert=require('node:assert/strict'),crypto=require('node:crypto'),vm=require('node:vm'),{execFileSync}=require('node:child_process');
 const m=JSON.parse(fs.readFileSync('presentation/manifest.json')),p=JSON.parse(fs.readFileSync('private-work/program.json')),v=JSON.parse(fs.readFileSync('site-version.json'));
 assert.equal(m.releaseId,v.version);assert.equal(m.contentRevision,v.contentRevision);assert.equal(m.contentRevision,JSON.parse(fs.readFileSync('program-version.json')).contentRevision);assert.equal(m.pageCount,p.presentation.acceptedPageCount);assert.equal(m.slides.length,m.pageCount);assert.equal(new Set(m.slides.map(s=>s.key)).size,m.pageCount);
@@ -10,3 +13,5 @@ assert(code.includes('m.releaseId!==htmlRelease'));assert(code.includes('proof.p
 console.log('PASS: coherent release, all77 original previews, measured PDF pages/SHA, stable slide-key restoration and CDN mismatch guard.');
 
 (async()=>{const candidate={releaseId:'new',contentRevision:'rev',pdfSha256:'hash',pageCount:3,pdfBytes:123,pdfUrl:'approved.pdf',assetManifestUrl:'proof.json',slides:[{key:'a'},{key:'b'},{key:'c'}]};let replaced='';const ctx={slides:[],current:0,location:{hash:'#slide-2',replace:u=>{replaced=u}},encodeURIComponent,indexFromHash:()=>1,fetch:async url=>url.startsWith('index')?{text:async()=>'<meta name="wine27-version" content="new">'}:url==='site-version.json'?{json:async()=>({version:'new',contentRevision:'rev'})}:url==='proof.json'?{json:async()=>candidate}:{ok:true,headers:{get:()=> '123'}}};vm.createContext(ctx);const begin=code.indexOf('async function recoverRelease('),end=code.indexOf('\n}',begin)+2;vm.runInContext(code.slice(begin,end),ctx);assert(await ctx.recoverRelease(candidate));assert.equal(replaced,'index.html?v=new#slide-2');console.log('PASS: initial stale HTML recovers to a coherent publication without losing slide position.');})().catch(e=>{console.error(e);process.exitCode=1});
+
+}

@@ -1,5 +1,9 @@
 {
-  "schemaVersion": 1,
-  "contentRevision": "21ae6fa67bf9933dc15e",
-  "presentationVersion": 17
+  "schemaVersion": "wine27-master-2027/v1",
+  "contentRevision": "34c8facdae15ebe7baee",
+  "sourceEventCount": 1283,
+  "sourceYearCount": 59,
+  "eventsSha256": "2743dfd5c455344237ee98c0402c3395761a0400b3b01cb4dbe3acfbbb53c9c4",
+  "expertSupplementCount": 15,
+  "priority": "master_then_experts"
 }

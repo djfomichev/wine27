@@ -1,3 +1,4 @@
+if(JSON.parse(require('node:fs').readFileSync('program-version.json')).schemaVersion==='wine27-master-2027/v1'){require('./check-master.cjs')}else{
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const elements=new Map();function el(s){if(!elements.has(s))elements.set(s,{innerHTML:'',textContent:'',value:'',hidden:false,style:{},classList:{toggle(){}},dataset:{},setAttribute(){},addEventListener(){},focus(){},showModal(){this.open=true},close(){this.open=false}});return elements.get(s)}
 const handlers={};const ctx={window:{addEventListener(){},scrollTo(){}},document:{querySelector:el,querySelectorAll:()=>[],addEventListener:(k,f)=>(handlers[k]??=[]).push(f),createElement:()=>({click(){}})},localStorage:{getItem(){return null},setItem(){}},location:{hash:'',pathname:'/work/'},setTimeout:()=>{},URL,Blob,console};vm.createContext(ctx);
@@ -255,3 +256,5 @@ for(const id of check('[...D.events,...D.projects,...D.embedded,...D.scheduledSl
 for(const m of check('D.months'))assert.doesNotMatch(m.themeDetail,editorialHistory,m.name);
 assert(check('D.events.find(e=>e.id==="resonance").previousDateRange.start==="2027-08-28"'),'Preserve provenance outside published copy');
 console.log('PASS: current management copy has no editorial history; original scheduling provenance is retained.');
+
+}
