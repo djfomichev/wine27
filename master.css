@@ -67,6 +67,8 @@ body.master-calendar{color:#111;background:#fff;margin:0;font-family:'Hauss', 'A
 .master-calendar #detailDialog{max-width:840px;width:calc(100% - 40px);max-height:88dvh;box-sizing:border-box;border:0;border-radius:18px;padding:40px;color:#111}
 .master-calendar #detailDialog::backdrop,.master-calendar #filterDialog::backdrop{background:#001e1680}
 .master-calendar .dialog-close{position:sticky;float:right;top:0;margin:-20px -20px 8px 12px;z-index:1}
+/* The dialog heading receives focus for reading, without a control outline. */
+.master-calendar #detailTitle:focus{outline:none}
 #detailContent h2{font-family:HaussWide,sans-serif;font-size:30px;line-height:1.2;margin:0 30px 24px 0;overflow-wrap:anywhere}#detailContent h3{font-family:HaussWide,sans-serif;font-size:20px;margin-top:28px}#detailContent p{font-size:18px;line-height:1.5;white-space:normal}
 .detail-facts{display:flex;flex-direction:column;gap:10px;background:#edf7f2;padding:18px;border-radius:10px;font-size:18px;line-height:1.4}.detail-status{color:#665341}.guest-condition{border-left:4px solid #ffc864;padding-left:16px}
 .timing-list{list-style:none;padding:0;margin:0}.timing-list li{display:grid;grid-template-columns:135px 1fr;gap:18px;padding:15px 0;border-top:1px solid #ddd;font-size:17px;line-height:1.4}.timing-list li span{display:block;color:#52605a;margin-top:4px}
