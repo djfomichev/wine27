@@ -1,6 +1,25 @@
 'use strict';
+// UI-only releases keep the encrypted content and the owner's key untouched.
+// Replace only the two shared scripts after authenticated decryption, locally.
+function refreshWorkingUI(html,config){
+ if(!config.runtime||!config.css)return html;
+ if(!/^\/calendar\/[a-f0-9]{20}\.js$/.test(config.runtime)||!/^\/calendar\/[a-f0-9]{20}\.css$/.test(config.css)||!/^\w{16}$/.test(config.version))throw Error('ui');
+ const page=new DOMParser().parseFromString(html,'text/html');
+ if(page.querySelector('meta[name="wine27-content"]')?.content!==config.contentRevision)throw Error('ui');
+ const scripts=[...page.querySelectorAll('script')];
+ const apps=scripts.filter(s=>s.textContent.includes("const WORKING=window.CALENDAR_DATA.edition==='working'"));
+ const updates=scripts.filter(s=>s.textContent.startsWith('/* Check for a published version'));
+ if(apps.length!==1||updates.length!==1)throw Error('ui');
+ const runtime=page.createElement('script');runtime.src=config.runtime;
+ apps[0].replaceWith(runtime);updates[0].remove();
+ const css=page.querySelector('link[rel="stylesheet"][href*="master.css"]');
+ if(!css)throw Error('ui');css.setAttribute('href',config.css);
+ page.querySelector('meta[name="wine27-version"]').content=config.version;
+ return '<!doctype html>'+page.documentElement.outerHTML;
+}
 (()=>{
  const form=document.getElementById('unlockForm'),input=document.getElementById('accessKey'),button=document.getElementById('unlockButton'),status=document.getElementById('lockStatus');
+ const uiConfig={runtime:document.body.dataset.uiRuntime,css:document.body.dataset.uiCss,version:document.querySelector('meta[name="wine27-version"]')?.content,contentRevision:document.body.dataset.uiContent};
  const storageKey='wine27-private-session-key';
  const decode=s=>Uint8Array.from(atob(s.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
  let busy=false;
@@ -18,9 +37,10 @@
    try{sessionStorage.setItem(storageKey,secret);}catch{}
    input.value='';
    if(location.hash.startsWith('#key='))history.replaceState(null,'',location.pathname+location.search+'#load');
-   document.open();document.write(page.html);document.close();
+   const html=refreshWorkingUI(page.html,uiConfig);
+   document.open();document.write(html);document.close();
   }catch(error){
-   status.textContent=error.message==='network'?'Не удалось загрузить страницу. Попробуй ещё раз.':'Не удалось открыть. Проверь персональный ключ.';
+   status.textContent=error.message==='ui'?'Рабочая версия обновляется. Обновите страницу и попробуйте ещё раз.':error.message==='network'?'Не удалось загрузить страницу. Попробуй ещё раз.':'Не удалось открыть. Проверь персональный ключ.';
    try{sessionStorage.removeItem(storageKey);}catch{}
    input.focus();
   }finally{busy=false;button.disabled=false;}

@@ -15,7 +15,7 @@
         if(['load','loadMonth','year','month','projects','expert','plan'].includes(ui.view))state.view=ui.view;
         if(Number.isInteger(ui.month)&&ui.month>=0&&ui.month<12)state.month=ui.month;
         const selected=Array.isArray(ui.filters)?ui.filters:[ui.category,...(ui.festivalsOnly===true?['festival']:[])];
-        state.filters=[...new Set(selected.filter(k=>k==='festival'||Object.hasOwn(cats,k)))];
+        state.filters=[...new Set(selected.filter(k=>typeof filterLabels!=='undefined'?Object.hasOwn(filterLabels,k):k==='festival'||Object.hasOwn(cats,k)))];
         state.density=ui.readabilityVersion===2&&ui.density==='compact'?'compact':'detail';
         state.expertTrack=['all','people','wines','recognition'].includes(ui.expertTrack)?ui.expertTrack:'all';
         state.expertTier=['all','core','development','reserve','conditional_session'].includes(ui.expertTier)?ui.expertTier:'all';

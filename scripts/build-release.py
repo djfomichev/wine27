@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 """One local build of the accepted registry, all three editions and protected source."""
 from pathlib import Path
-import argparse,subprocess,json
+import argparse,subprocess,json,re
 ROOT=Path(__file__).resolve().parents[1]
 a=argparse.ArgumentParser();a.add_argument('--key-file',required=True);args=a.parse_args()
 master=json.loads((ROOT/'private-work/program.json').read_text()).get('schema_version')=='wine27-master-2027/v1'
+# A full, authenticated rebuild embeds the latest UI in its new payload.
+# Remove the bridge used by UI-only releases before calculating the full version.
+gate=ROOT/'work/index.html'
+gate.write_text(re.sub(r' data-ui-(?:runtime|css|content)="[^"]*"','',gate.read_text()))
 commands=[['python3','scripts/sync-program.py']]
 if not master:commands.append(['python3','scripts/build-presentation.py'])
 commands.extend([['python3','scripts/stamp-version.py'],['python3','scripts/protect-work.py','--key-file',args.key_file]])

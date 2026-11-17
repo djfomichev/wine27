@@ -92,7 +92,9 @@ def sync(p,out=ROOT):
   data['contentRevision']=revision;data['edition']='working' if working else 'team';data['sourceEventCount']=len(p['events']);data['sourceYearCount']=len(p['year_events'])
   dest=out/'private-work' if working else out;dest.mkdir(exist_ok=True,parents=True)
   for name,var,value in [('data.js','CALENDAR_DATA',data),('expert-data.js','EXPERT_DATA',{'contentRevision':revision,**overlay}),('planning-data.js','PLANNING_DATA',{'contentRevision':revision,**({'conditional_programs':p['conditional_programs'],'special_conditions':p['special_conditions'],'rules':p['rules'],'expertPreparation':supp.get('preparation',[]),'resourceModel':{'key':'belyi-mys-2027-resource-scenario-v1'}} if working else {})})]:
-   (dest/name).write_text('window.'+var+'='+json.dumps(value,ensure_ascii=False,separators=(',',':'))+';\n')
+   from calendar_decisions import apply_decisions,refresh_runtime
+   refresh_runtime(out)
+   (dest/name).write_text('window.'+var+'='+json.dumps(apply_decisions(value),ensure_ascii=False,separators=(',',':'))+';\n')
  (out/'program-version.json').write_text(json.dumps({'schemaVersion':p['schema_version'],'contentRevision':revision,'sourceEventCount':len(p['events']),'sourceYearCount':len(p['year_events']),'eventsSha256':digest(p['events']),'expertSupplementCount':len(supp['public']['events'])-len(supp['masterBindings']),'priority':'master_then_experts'},indent=2)+'\n')
  for name in ['index.html','private-work/index.html']:
   page=out/name

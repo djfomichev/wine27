@@ -1,9 +1,30 @@
 'use strict';
+// BEGIN CALENDAR DECISIONS
+const calendarDecisions={"removedYearIds":["shum-winter","shum-spring","shum-summer","shum-autumn"],"removedEventIds":["w27-checked-0116-0004","w27-checked-0123-0015","w27-checked-0327-0105","w27-checked-0327-0106","w27-0718-0476","w27-0718-0477","w27-1113-0561","w27-1113-0562"],"textReplacements":{", кабаре «Шум» 18 июля":"","«Шум» и «Синематика» представляют осенние программы.":"«Синематика» представляет осеннюю программу.","«Шум» и «Синематика» по 1 приезду в сезон.":"«Синематика» — 1 приезд в сезон."," Это отдельная программа, не кабаре «Шум».":"","Подкаст «Музыкального ателье» о музыке для YouTube1 раз в 2 месяца: январь, март, май, июль, сентябрь, ноябрь. Во время приезда «Шума» подкаст с артистами его программы.":"Подкаст «Музыкального ателье» о музыке для YouTube."}};
+// END CALENDAR DECISIONS
+// Apply the same explicit removals to older encrypted content after unlock.
+function applyCalendarDecisions(data){
+ const clean=value=>{
+  if(typeof value==='string'){for(const [from,to] of Object.entries(calendarDecisions.textReplacements))value=value.replaceAll(from,to);return value;}
+  if(Array.isArray(value))return value.map(clean);
+  if(value&&typeof value==='object'){for(const key of Object.keys(value))value[key]=clean(value[key]);}
+  return value;
+ };
+ clean(data);
+ if(data.events)data.events=data.events.filter(e=>!calendarDecisions.removedEventIds.includes(e.id));
+ if(data.year_events){data.year_events=data.year_events.filter(e=>!calendarDecisions.removedYearIds.includes(e.id));for(const e of data.year_events)e.event_ids=e.event_ids.filter(id=>!calendarDecisions.removedEventIds.includes(id));}
+}
+applyCalendarDecisions(window.CALENDAR_DATA);applyCalendarDecisions(window.PLANNING_DATA);
 const WORKING=window.CALENDAR_DATA.edition==='working';
 const D=window.CALENDAR_DATA, X=window.EXPERT_DATA, P=window.PLANNING_DATA;
 const $=s=>document.querySelector(s);
 const cats={wine:'Вино',music:'Музыка',gastro:'Гастрономия',art:'Искусство',city:'Город',partner:'Партнёры',expert:'Экспертная программа'};
-const filterLabels={festival:'Фестивали',...cats};
+// Approved brand list and operating structure, 17 November 2026.
+const businessUnits={enoteca:'Энотека',hall:'Эвент-холл',fb:'F&B',beach:'Пляж',museum:'Музей вина',city:'Городская программа'};
+const brandedYearIds=new Set(['newyear-jan','newyear-dec','masters','city-reads','mayovka','terroir','city-birthday','orchestras','resonance','paradiz-festival','velvet','south-table','wineweek','anchovy','golden-dozen','white-sail','golitsyn','barin','wineforum','award']);
+const categoryLabels={festival:'Фестивали',...cats};
+const unitLabels=Object.fromEntries(Object.entries(businessUnits).map(([k,v])=>['unit:'+k,v]));
+const filterLabels={brand:'Брендовые события',...categoryLabels,...unitLabels};
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const localDate=s=>new Date(s+'T12:00:00+03:00');
 const pretty=s=>new Intl.DateTimeFormat('ru-RU',{day:'numeric',month:'long',timeZone:'Europe/Moscow'}).format(localDate(s));
@@ -16,27 +37,53 @@ const byId=new Map(allEvents.map(e=>[e.id,e]));
 const supplementalYears=supplemental.map(e=>({...e,start_date:e.date,end_date:e.date_range_end,event_ids:[e.id],venues:[e.venue]}));
 const allYears=[...D.year_events,...supplementalYears];
 const normalize=s=>String(s||'').toLocaleLowerCase('ru-RU').replaceAll('ё','е');
-function matches(e){return (!state.filters.length||state.filters.some(c=>(e.categories||[]).includes(c)))&&(!state.query||normalize([e.title,e.public_description||e.description,e.venue,...(e.venues||[]),e.date,e.start_date].join(' ')).includes(normalize(state.query)));}
+const unitCache=new Map();
+function unitsFor(e){
+ if(unitCache.has(e.id))return unitCache.get(e.id);
+ const units=new Set();
+ // These are participating units and venues, never invented owners or bookings.
+ const venues=normalize([e.venue,...(e.venues||[])].filter(Boolean).join(' · '));
+ if(/энотек/.test(venues))units.add('enoteca');
+ if(/эвент[ -]холл|экспо/.test(venues)||e.kind==='cabaret'||e.id==='cabaret-premiere')units.add('hall');
+ if(/ресторан|бар|руфтоп|керман|чайка кричала|парадиз|лоза|лазанья|этюды|амбассадор/.test(venues))units.add('fb');
+ if(/пляж/.test(venues))units.add('beach');
+ if(/музей вина/.test(venues))units.add('museum');
+ if(/территория города|площадки города|площадь|амфитеатр|пирс|ротонда|сцен[аы]|экраны города|кинотеатр|коворкинг/.test(venues))units.add('city');
+ if(e.event_ids)for(const id of e.event_ids){const child=byId.get(id);if(child&&child.id!==e.id)for(const unit of unitsFor(child))units.add(unit);}
+ const result=Object.keys(businessUnits).filter(k=>units.has(k));unitCache.set(e.id,result);return result;
+}
+function isBranded(e){return brandedYearIds.has(e.id)||(e.year_event_ids||[]).some(id=>brandedYearIds.has(id));}
+function matches(e){
+ const categories=state.filters.filter(k=>Object.hasOwn(categoryLabels,k));
+ const units=state.filters.filter(k=>k.startsWith('unit:')).map(k=>k.slice(5));
+ return (!categories.length||categories.some(c=>(e.categories||[]).includes(c)))
+  &&(!units.length||units.some(k=>unitsFor(e).includes(k)))
+  &&(!state.filters.includes('brand')||isBranded(e))
+  &&(!state.query||normalize([e.title,e.public_description||e.description,e.venue,...(e.venues||[]),e.date,e.start_date].join(' ')).includes(normalize(state.query)));
+}
+function filterClass(k){return k==='brand'?'brand-filter':k.startsWith('unit:')?'unit-filter':'';}
+function unitTags(e){const units=unitsFor(e);return units.length?'<span class="unit-tags" aria-label="Бизнес-юниты">'+units.map(k=>'<span class="unit-tag">'+esc(businessUnits[k])+'</span>').join('')+'</span>':'';}
 function eventsOn(date){return allEvents.filter(e=>e.month_visible!==false&&(e.supplemental?e.date<=date&&(e.date_range_end||e.date)>=date:e.date===date)).sort((a,b)=>Number(a.supplemental)-Number(b.supplemental)||(a.sort_index??99999)-(b.sort_index??99999)||a.id.localeCompare(b.id));}
 function yearInMonth(m){const days=D.month_metadata[m].days;return allYears.filter(e=>e.start_date<=days.at(-1)&&e.end_date>=days[0]&&matches(e)).sort((a,b)=>a.start_date.localeCompare(b.start_date)||Number(a.supplemental)-Number(b.supplemental)||a.id.localeCompare(b.id));}
 function timeLabel(e,detailed=false){if(['sunset','after_bell'].includes(e.time_anchor))return e.display_time;if(detailed&&e.start_time)return e.start_time+(e.end_time?'–'+e.end_time:e.end_anchor==='sunset'?' — до заката':e.end_label?' — '+e.end_label:'');return e.display_time||e.start_time||'Время уточняется';}
 function plain(s){return esc(s).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');}
-function filterButton(k,extra=''){const on=state.filters.includes(k);return `<button type="button" class="filter-chip ${on?'selected':''} ${extra}" data-filter="${k}" aria-pressed="${on}">${on?'<span aria-hidden="true">✓</span>':`<span class="filter-dot filter-${k}" aria-hidden="true"></span>`}${esc(filterLabels[k])}</button>`;}
+function filterButton(k,extra=''){const on=state.filters.includes(k);return `<button type="button" class="filter-chip ${filterClass(k)} ${on?'selected':''} ${extra}" data-filter="${k}" aria-pressed="${on}">${on?'<span aria-hidden="true">✓</span>':`<span class="filter-dot filter-${k.startsWith('unit:')?'unit':k}" aria-hidden="true"></span>`}${esc(filterLabels[k])}</button>`;}
 function monthOptions(){return '<option value="">Месяц</option>'+D.month_metadata.map((m,i)=>`<option value="${i}" ${state.view==='month'&&state.month===i?'selected':''}>${esc(m.name)}</option>`).join('');}
 function renderFilters(){
- $('#filters').innerHTML=`<button class="all-filter ${state.filters.length?'':'selected'}" data-all aria-pressed="${!state.filters.length}">ВСЕ</button><button class="phone-filter" id="openFilters" aria-haspopup="dialog" aria-controls="filterDialog">Фильтры${state.filters.length?` <span>${state.filters.length}</span>`:''}</button><div class="desktop-filters">${Object.keys(filterLabels).map(k=>filterButton(k)).join('')}</div><label class="month-picker"><span class="sr-only">Месяц</span><select id="jumpMonth" aria-label="Месяц">${monthOptions()}</select></label><button class="reset-filters" data-all ${state.filters.length?'':'hidden'}>× Сбросить</button><div class="selected-filters">${state.filters.map(k=>`<button class="selected-chip" data-filter="${k}" aria-label="Убрать фильтр ${esc(filterLabels[k])}">${esc(filterLabels[k])} <span aria-hidden="true">×</span></button>`).join('')}</div>`;
- $('#filterChoices').innerHTML=Object.keys(filterLabels).map(k=>filterButton(k)).join('');
+ state.filters=[...new Set(state.filters.filter(k=>Object.hasOwn(filterLabels,k)))];
+ $('#filters').innerHTML=`<button class="all-filter ${state.filters.length?'':'selected'}" data-all aria-pressed="${!state.filters.length}">ВСЕ</button><button class="phone-filter" id="openFilters" aria-haspopup="dialog" aria-controls="filterDialog">Фильтры${state.filters.length?` <span>${state.filters.length}</span>`:''}</button><div class="desktop-filters">${filterButton('brand')}${Object.keys(categoryLabels).map(k=>filterButton(k)).join('')}</div><label class="month-picker"><span class="sr-only">Месяц</span><select id="jumpMonth" aria-label="Месяц">${monthOptions()}</select></label><div class="unit-filters" role="group" aria-label="Бизнес-юниты"><span class="filter-group-label">Бизнес-юниты</span>${Object.keys(unitLabels).map(k=>filterButton(k)).join('')}<button class="reset-filters" data-all ${state.filters.length?'':'hidden'}>× Сбросить</button></div><div class="selected-filters">${state.filters.map(k=>`<button class="selected-chip ${filterClass(k)}" data-filter="${k}" aria-label="Убрать фильтр ${esc(filterLabels[k])}">${esc(filterLabels[k])} <span aria-hidden="true">×</span></button>`).join('')}</div>`;
+ $('#filterChoices').innerHTML=`<div class="filter-section">${filterButton('brand')}</div><div class="filter-section" role="group" aria-label="Бизнес-юниты"><h3>Бизнес-юниты</h3>${Object.keys(unitLabels).map(k=>filterButton(k)).join('')}</div><div class="filter-section" role="group" aria-label="Направления"><h3>Направления</h3>${Object.keys(categoryLabels).map(k=>filterButton(k)).join('')}</div>`;
 }
 const regularYearIds=new Set(['jazz-jan','jazz-feb','jazz-mar','jazz-apr','jazz-may','jazz-jun','bell-start','summer-start','beach-start']);
 function tone(e) {
  const categories = e.categories || [];
- if (e.is_festival) return 'festival';
+ if (e.event_ids && isBranded(e)) return 'brand';
  if (e.supplemental || categories.includes('expert')) return 'expert';
  const isMusic = e.event_ids
   ? e.event_ids.length > 0 && e.event_ids.every(id => byId.get(id)?.categories.includes('music'))
   : categories.includes('music');
  if (isMusic) return 'music';
- if (categories.includes('festival')) return 'festival';
+ if (isBranded(e) && e.kind!=='cabaret') return 'brand';
  if (e.event_ids) return regularYearIds.has(e.id) ? 'regular' : 'major';
  const majorKind = ['cabaret','shum','cinematica','special_concert','ceremony','exhibition_opening'].includes(e.kind);
  return majorKind || (e.year_event_ids || []).some(id => !regularYearIds.has(id)) ? 'major' : 'regular';
@@ -44,13 +91,13 @@ function tone(e) {
 function exhibitionPeriod(e){if(D.display_periods[e.id])return D.display_periods[e.id];const key=(e.year_event_ids||[]).find(id=>D.display_periods[id]);if(key)return D.display_periods[key];if(e.kind==='exhibition')return Object.values(D.display_periods).find(p=>e.date>=p.start&&e.date<=p.end);return null;}
 function visiblePeriod(e){const p=exhibitionPeriod(e);return p?range(p.start,p.end):range(e.start_date||e.date,e.end_date||e.date_range_end);}
 function periodNote(e){const p=exhibitionPeriod(e);if(p)return '<span class="event-period">Выставка: '+esc(range(p.start,p.end))+'</span>';return e.date_range_end&&e.date_range_end!==e.date?'<span class="event-period">'+esc(range(e.date,e.date_range_end))+'</span>':'';}
-function yearCard(e){return `<button class="year-event tone-${tone(e)} ${e.supplemental?'expert-event':e.categories.includes('festival')?'festival-event':''}" data-year-event="${esc(e.id)}"><span class="year-date">${esc(visiblePeriod(e))}</span><strong>${esc(e.title)}</strong>${exhibitionPeriod(e)?`<span class="event-opening">Открытие ${esc(pretty(exhibitionPeriod(e).opening))}</span>`:''}<span class="event-venue">${esc(e.venues.join(' · '))}</span>${e.supplemental?'<span class="preliminary">'+(e.id==='exp_sparkling_session'?'Первый год не выбран · предложение':'Предварительная дата')+'</span>':e.status==='for_consideration'||e.calendar_status==='for_consideration'?'<span class="preliminary">На рассмотрении</span>':''}</button>`;}
+function yearCard(e){return `<button class="year-event tone-${tone(e)} ${e.supplemental?'expert-event':''}" data-year-event="${esc(e.id)}"><span class="year-date">${esc(visiblePeriod(e))}</span><strong>${esc(e.title)}</strong>${isBranded(e)?'<span class="brand-caption">Брендовое событие</span>':''}${exhibitionPeriod(e)?`<span class="event-opening">Открытие ${esc(pretty(exhibitionPeriod(e).opening))}</span>`:''}<span class="event-venue">${esc(e.venues.join(' · '))}</span>${unitTags(e)}${e.supplemental?'<span class="preliminary">'+(e.id==='exp_sparkling_session'?'Первый год не выбран · предложение':'Предварительная дата')+'</span>':e.status==='for_consideration'||e.calendar_status==='for_consideration'?'<span class="preliminary">На рассмотрении</span>':''}</button>`;}
 function renderYear(){
  if(state.query){const results=allEvents.filter(matches).sort((a,b)=>a.date.localeCompare(b.date)||a.sort_index-b.sort_index);$('#loadView').innerHTML=results.length?`<div class="search-results">${results.map(e=>`<div class="search-date">${esc(range(e.date,e.date_range_end))}</div>${eventRow(e)}`).join('')}</div>`:empty();return;}
  $('#loadView').innerHTML='<div class="master-year">'+D.month_metadata.map((m,i)=>`<section class="master-month"><button class="year-month-heading" data-month="${i}"><span class="month-number">${String(i+1).padStart(2,'0')}</span><h2>${esc(m.name)}</h2><span aria-hidden="true">↗</span></button><button class="year-theme" data-theme="${i}">${esc(m.theme)}</button><div class="year-events">${yearInMonth(i).map(yearCard).join('')||'<p class="month-empty">Нет событий по выбранным фильтрам</p>'}</div><button class="month-open" data-month="${i}">Расписание по дням <span aria-hidden="true">→</span></button></section>`).join('')+'</div>';
 }
 function empty(){return '<p class="master-empty">Ничего не найдено. Попробуйте другое название или измените фильтры.</p>';}
-function eventRow(e){return `<button class="agenda-event tone-${tone(e)} ${e.supplemental?'expert-event':''}" data-event="${esc(e.id)}"><span class="agenda-time">${esc(timeLabel(e))}${e.ends_next_day?'<small>до следующего дня</small>':''}</span><span class="agenda-info"><strong>${esc(e.title)}</strong>${periodNote(e)}<span class="event-venue">${esc(e.venue)}</span>${e.supplemental?'<span class="preliminary">'+(e.id==='exp_sparkling_session'?'Первый год не выбран · предложение':'Предварительная дата')+'</span>':e.status==='for_consideration'||e.calendar_status==='for_consideration'?'<span class="preliminary">На рассмотрении</span>':''}</span><span class="event-arrow" aria-hidden="true">↗</span></button>`;}
+function eventRow(e){return `<button class="agenda-event tone-${tone(e)} ${e.supplemental?'expert-event':''}" data-event="${esc(e.id)}"><span class="agenda-time">${esc(timeLabel(e))}${e.ends_next_day?'<small>до следующего дня</small>':''}</span><span class="agenda-info"><strong>${esc(e.title)}</strong>${periodNote(e)}<span class="event-venue">${esc(e.venue)}</span>${unitTags(e)}${e.supplemental?'<span class="preliminary">'+(e.id==='exp_sparkling_session'?'Первый год не выбран · предложение':'Предварительная дата')+'</span>':e.status==='for_consideration'||e.calendar_status==='for_consideration'?'<span class="preliminary">На рассмотрении</span>':''}</span><span class="event-arrow" aria-hidden="true">↗</span></button>`;}
 function dayProgram(date){return date>='2027-01-01'&&date<='2027-01-10'?'Новогодняя программа':'';}
 function renderMonth(){
  const m=D.month_metadata[state.month];$('#monthTitle').textContent=m.name;$('#monthSelect').innerHTML=D.month_metadata.map((x,i)=>`<option value="${i}" ${i===state.month?'selected':''}>${esc(x.name)}</option>`).join('');$('#prevMonth').disabled=state.month===0;$('#nextMonth').disabled=state.month===11;
@@ -70,9 +117,9 @@ function parseHash(){const hash=location.hash;const m=hash.match(/^#(?:month|loa
 let dialogReturn=null;
 function openDetail(title,html){dialogReturn=document.activeElement;$('#detailContent').innerHTML=`<h2 id="detailTitle" tabindex="-1">${esc(title)}</h2>${html}`;$('#detailDialog').setAttribute('aria-labelledby','detailTitle');if(!$('#detailDialog').open)$('#detailDialog').showModal();$('#detailDialog').scrollTop=0;$('#detailTitle').focus();}
 function timingBlocks(e){const rows=e.phases||e.time_blocks||[];return rows.length?`<h3>Расписание</h3><ol class="timing-list">${rows.map(b=>`<li><strong>${esc(b.start_time||b.start||'')}${b.end_time||b.end?'–'+esc(b.end_time||b.end):''}</strong><div>${esc(b.label||b.title||b.description||'')}${b.venue?`<span>${esc(b.venue)}</span>`:''}</div></li>`).join('')}</ol>`:'';}
-function eventDetails(e){const privateNotes=WORKING&&e.production_notes?.length?`<details><summary>Производственный план</summary>${e.production_notes.map(s=>`<p>${plain(s)}</p>`).join('')}</details>`:'';return `<div class="detail-facts tone-${tone(e)}"><span>${esc(range(e.date,e.date_range_end))} · ${esc(weekday(e.date))}</span><strong>${esc(timeLabel(e,true))}${e.ends_next_day?' · окончание на следующий день':''}</strong><span>${esc(e.venue)}</span></div>${e.supplemental?'<p class="detail-status">Экспертная программа · предварительные даты. Время и площадка согласуются.'+(e.id==='exp_sparkling_session'?' Первый год проведения не выбран.':'')+'</p>':WORKING?'<p class="detail-status">'+(e.calendar_status==='for_consideration'?'На рассмотрении':e.planning_status==='proposal'?'Предложение':'В плане')+(e.booking_status==='not_confirmed'?' · состав участников не подтверждён':'')+'</p>':e.calendar_status==='for_consideration'?'<p class="detail-status">На рассмотрении</p>':''}${exhibitionPeriod(e)?`<p class="detail-period">Выставка: ${esc(visiblePeriod(e))}. Открытие ${esc(pretty(exhibitionPeriod(e).opening))}.</p>`:''}<p>${plain(e.public_description||e.description)}</p>${(e.guest_conditions||[]).map(s=>`<p class="guest-condition">${esc(s)}</p>`).join('')}${e.film?`<p class="film-credit">${esc(e.film.title)} · ${esc(e.film.director)} · ${esc(e.film.year)}</p>`:''}${timingBlocks(e)}${e.booking_status==='not_confirmed'&&e.artist_options?.length?`<p>Варианты участников: ${e.artist_options.map(esc).join(', ')}. Участие не подтверждено.</p>`:''}${privateNotes}`;}
+function eventDetails(e){const privateNotes=WORKING&&e.production_notes?.length?`<details><summary>Производственный план</summary>${e.production_notes.map(s=>`<p>${plain(s)}</p>`).join('')}</details>`:'';return `<div class="detail-facts tone-${tone(e)}"><span>${esc(range(e.date,e.date_range_end))} · ${esc(weekday(e.date))}</span><strong>${esc(timeLabel(e,true))}${e.ends_next_day?' · окончание на следующий день':''}</strong><span>${esc(e.venue)}</span>${unitTags(e)}</div>${e.supplemental?'<p class="detail-status">Экспертная программа · предварительные даты. Время и площадка согласуются.'+(e.id==='exp_sparkling_session'?' Первый год проведения не выбран.':'')+'</p>':WORKING?'<p class="detail-status">'+(e.calendar_status==='for_consideration'?'На рассмотрении':e.planning_status==='proposal'?'Предложение':'В плане')+(e.booking_status==='not_confirmed'?' · состав участников не подтверждён':'')+'</p>':e.calendar_status==='for_consideration'?'<p class="detail-status">На рассмотрении</p>':''}${exhibitionPeriod(e)?`<p class="detail-period">Выставка: ${esc(visiblePeriod(e))}. Открытие ${esc(pretty(exhibitionPeriod(e).opening))}.</p>`:''}<p>${plain(e.public_description||e.description)}</p>${(e.guest_conditions||[]).map(s=>`<p class="guest-condition">${esc(s)}</p>`).join('')}${e.film?`<p class="film-credit">${esc(e.film.title)} · ${esc(e.film.director)} · ${esc(e.film.year)}</p>`:''}${timingBlocks(e)}${e.booking_status==='not_confirmed'&&e.artist_options?.length?`<p>Варианты участников: ${e.artist_options.map(esc).join(', ')}. Участие не подтверждено.</p>`:''}${privateNotes}`;}
 function openEvent(id){const e=byId.get(id);if(e)openDetail(e.title,eventDetails(e));}
-function openYear(id){const y=allYears.find(e=>e.id===id);if(!y)return;if(y.supplemental){openEvent(id);return;}const events=y.event_ids.map(i=>byId.get(i)).filter(Boolean).sort((a,b)=>a.date.localeCompare(b.date)||a.sort_index-b.sort_index);openDetail(y.title,`<div class="detail-facts tone-${tone(y)}"><strong>${esc(visiblePeriod(y))}</strong>${exhibitionPeriod(y)?`<span>Открытие ${esc(pretty(exhibitionPeriod(y).opening))}</span>`:''}<span>${esc(y.venues.join(' · '))}</span></div><p>${plain(y.description)}</p>${y.status==='for_consideration'?'<p class="detail-status">На рассмотрении</p>':''}<div class="year-detail-events">${events.map(e=>`<div class="search-date">${esc(range(e.date,e.date_range_end))} · ${esc(weekday(e.date))}</div>${eventRow(e)}`).join('')}</div>`);}
+function openYear(id){const y=allYears.find(e=>e.id===id);if(!y)return;if(y.supplemental){openEvent(id);return;}const events=y.event_ids.map(i=>byId.get(i)).filter(Boolean).sort((a,b)=>a.date.localeCompare(b.date)||a.sort_index-b.sort_index);openDetail(y.title,`<div class="detail-facts tone-${tone(y)}"><strong>${esc(visiblePeriod(y))}</strong>${exhibitionPeriod(y)?`<span>Открытие ${esc(pretty(exhibitionPeriod(y).opening))}</span>`:''}<span>${esc(y.venues.join(' · '))}</span>${unitTags(y)}</div><p>${plain(y.description)}</p>${y.status==='for_consideration'?'<p class="detail-status">На рассмотрении</p>':''}<div class="year-detail-events">${events.map(e=>`<div class="search-date">${esc(range(e.date,e.date_range_end))} · ${esc(weekday(e.date))}</div>${eventRow(e)}`).join('')}</div>`);}
 function openTheme(m){if(!WORKING){setView('month',m);window.scrollTo({top:0});return;}const month=D.month_metadata[m];openDetail(month.theme,`<p>${esc(month.name)} 2027</p>${WORKING?`<p>${plain(month.program_logic)}</p>`:''}<button class="primary-action" data-month="${m}" data-close-detail>Расписание месяца →</button>`);}
 let filterReturn=null;
 function openFilters(){filterReturn=$('#openFilters');$('#filterDialog').showModal();}
@@ -82,7 +129,7 @@ document.addEventListener('click',e=>{
  const b=e.target.closest('button,a');if(!b)return;
  if(b.id==='calendarHome'){e.preventDefault();state.filters=[];state.query='';$('#search').value='';setView('load');window.scrollTo({top:0});}
  if(b.hasAttribute('data-all')){state.filters=[];render();$('[data-all]')?.focus();}
- if(b.dataset.filter){const k=b.dataset.filter;const sheet=$('#filterDialog').open;state.filters=state.filters.includes(k)?state.filters.filter(x=>x!==k):[...state.filters,k];render();(sheet?$('#filterChoices [data-filter="'+k+'"]'):$('.selected-filters [data-filter="'+k+'"]')||$('[data-all]'))?.focus();}
+ if(b.dataset.filter){const k=b.dataset.filter;const sheet=$('#filterDialog').open;state.filters=state.filters.includes(k)?state.filters.filter(x=>x!==k):[...state.filters,k];render();(sheet?$('#filterChoices [data-filter="'+k+'"]'):window.matchMedia('(max-width:700px)').matches?$('.selected-filters [data-filter="'+k+'"]')||$('#openFilters'):$('#filters [data-filter="'+k+'"]'))?.focus({preventScroll:true});}
  if(b.dataset.view){setView(b.dataset.view);window.scrollTo({top:0});}
  if(b.dataset.month!==undefined){if($('#detailDialog').open)$('#detailDialog').close();setView('month',b.dataset.month);window.scrollTo({top:0});}
  if(b.dataset.event)openEvent(b.dataset.event);
@@ -126,5 +173,5 @@ function renderPlan(){
  $('#planMonth').onchange=e=>{state.month=+e.target.value;renderPlan();};
 }
 // Read-only surface for integrity and rendering checks; no additional recurrence engine.
-window.WINE27_MASTER={eventsOn,yearInMonth,timeLabel,matches,allEvents,allYears,source:D,expert:X};
+window.WINE27_MASTER={eventsOn,yearInMonth,timeLabel,matches,allEvents,allYears,unitsFor,isBranded,tone,businessUnits,brandedYearIds,source:D,expert:X};
 if(D.schema_version!=='wine27-master-2027/v1'||X.contentRevision!==D.contentRevision||P.contentRevision!==D.contentRevision||document.querySelector('meta[name="wine27-content"]')?.content!==D.contentRevision){$('#loadView').innerHTML='<p class="master-empty">Календарь обновляется. Обновите страницу через несколько секунд.</p>';}else{parseHash();render();}

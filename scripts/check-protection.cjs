@@ -22,7 +22,7 @@ async function main(){
  const ready=new Promise(resolve=>finished=resolve);
  const els={unlockForm:{addEventListener(){}},accessKey:{value:'',focus(){}},unlockButton:{disabled:false},lockStatus:{textContent:''}};
  const loc={href:'https://wine27.ru/work/',pathname:'/work/',search:'',hash:'#key='+key};
- const ctx={document:{getElementById:id=>els[id],open(){},write:h=>{rendered=h;finished()},close(){}},location:loc,history:{replaceState:(_,__,url)=>{loc.hash=url.slice(url.indexOf('#'))}},sessionStorage:{getItem:()=>null,setItem:(_,v)=>stored=v,removeItem:()=>{}},fetch:async()=>({ok:true,json:async()=>payload}),crypto:webcrypto,TextEncoder,Response,Blob,DecompressionStream,URL,atob,console};
+ const ctx={document:{body:{dataset:{}},querySelector:()=>null,getElementById:id=>els[id],open(){},write:h=>{rendered=h;finished()},close(){}},location:loc,history:{replaceState:(_,__,url)=>{loc.hash=url.slice(url.indexOf('#'))}},sessionStorage:{getItem:()=>null,setItem:(_,v)=>stored=v,removeItem:()=>{}},fetch:async()=>({ok:true,json:async()=>payload}),crypto:webcrypto,TextEncoder,Response,Blob,DecompressionStream,URL,atob,console};
  vm.createContext(ctx);vm.runInContext(fs.readFileSync('work/lock.js','utf8'),ctx);
  await Promise.race([ready,new Promise((_,reject)=>setTimeout(()=>reject(Error('Gate did not unlock')),3000))]);
  assert.equal(rendered,page.html);assert.equal(stored,key);assert.equal(loc.hash,'#load');assert.equal(els.accessKey.value,'');
