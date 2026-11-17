@@ -78,6 +78,7 @@ const regularYearIds=new Set(['jazz-jan','jazz-feb','jazz-mar','jazz-apr','jazz-
 function tone(e) {
  const categories = e.categories || [];
  if (e.event_ids && isBranded(e)) return 'brand';
+ if (isBranded(e) && ['forum','ceremony'].includes(e.kind)) return 'brand';
  if (e.supplemental || categories.includes('expert')) return 'expert';
  const isMusic = e.event_ids
   ? e.event_ids.length > 0 && e.event_ids.every(id => byId.get(id)?.categories.includes('music'))

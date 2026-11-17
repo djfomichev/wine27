@@ -11,6 +11,7 @@ assert.equal(api.source.events.length,1275);assert.equal(api.source.year_events.
 assert(!api.allEvents.some(e=>e.title.includes('Шум')));assert.equal(api.allEvents.filter(e=>e.kind==='cabaret').length,54);
 assert.equal(api.allYears.filter(api.isBranded).length,20);
 for(const id of ['wineforum','award','paradiz-festival'])assert.equal(api.tone(api.allYears.find(e=>e.id===id)),'brand');
+for(const e of api.allEvents.filter(e=>['forum','ceremony'].includes(e.kind)&&api.isBranded(e)))assert.equal(api.tone(e),'brand');
 for(const e of api.allEvents.filter(e=>e.kind==='cabaret'))assert.equal(api.unitsFor(e).join(),'hall');
 for(const e of api.allEvents.filter(e=>e.kind==='rooftop'||e.venue==='«Парадиз»'))assert(api.unitsFor(e).includes('fb'));
 assert(api.allEvents.filter(e=>!e.supplemental).every(e=>api.unitsFor(e).length));
