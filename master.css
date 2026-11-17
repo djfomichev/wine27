@@ -171,3 +171,105 @@ body.master-calendar{color:#111;background:#fff;margin:0;font-family:'Hauss', 'A
  .filter-section .filter-chip{flex:1 1 auto;justify-content:center}
  .unit-tag{font-size:12px}
 }
+
+/* 17 November: one aligned toolbar; the month belongs to period navigation. */
+.master-calendar .mast{grid-template-columns:minmax(340px,1fr) minmax(240px,350px) auto;gap:24px;padding-bottom:24px}
+.master-calendar .heading{grid-column:1;grid-row:1;display:block}
+.master-calendar .mast-updated{margin-top:8px}
+.master-calendar .mast h1,.master-calendar .mast-year{font-size:32px}
+.master-calendar .search{grid-column:2;grid-row:1}
+.master-calendar .search input::placeholder{color:#6b6b6b;opacity:1}
+.calendar-period{grid-column:3;grid-row:1;display:flex;align-items:center;gap:10px}
+.master-calendar .views{background:#f2f3f2;border-radius:12px;padding:4px}
+.master-calendar .views button{min-height:44px;border-radius:8px;padding:10px 18px}
+.master-calendar .month-picker{width:142px;min-width:0;margin:0}
+.master-calendar .month-picker select{min-height:52px;border-radius:10px;font-size:17px;padding-left:16px;border-color:#c9cdca}
+.master-calendar #filters{display:block}
+.master-calendar .controls{margin-bottom:24px}
+.filter-primary{display:grid;grid-template-columns:.7fr 1.75fr 1.18fr .74fr 1.05fr 1.35fr 1.18fr .8fr 1.12fr 1.85fr;gap:8px;align-items:stretch}
+.master-calendar .desktop-filters{display:contents}
+.master-calendar .phone-month-picker{display:none}
+.master-calendar .filter-chip{border-radius:10px;min-width:0;min-height:56px;padding:10px 12px;gap:8px;font-size:18px;line-height:1.2;justify-content:center;white-space:normal;text-align:left;border-color:#c9cdca;transition:background-color .15s,border-color .15s}
+.master-calendar .filter-chip:hover{border-color:#666}
+.master-calendar .all-filter{font-size:24px;min-height:56px;border-radius:10px;padding:10px 12px;line-height:1.2}
+.master-calendar .filter-chip.brand-filter{border-color:#b99a59}
+.master-calendar .unit-filters{display:grid;grid-template-columns:112px minmax(0,1fr) 80px;gap:12px;align-items:center;margin-top:12px;padding:12px 16px;background:#f5f6f5;border-radius:12px}
+.filter-group-label{font-size:14px;line-height:1.25;margin:0;color:#535a56}
+.unit-choice-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.master-calendar .unit-filters .filter-chip{min-height:50px}
+.master-calendar .filter-chip.unit-filter{border-color:#d9cdef;color:#5b2ccb}
+.master-calendar .filter-chip.unit-filter:hover{border-color:#5b2ccb}
+.master-calendar .filter-chip.unit-filter.selected{background:#5b2ccb;border-color:#5b2ccb;color:#fff}
+.master-calendar .reset-filters{font-size:14px;min-height:44px;padding:8px 0;text-decoration:underline;text-underline-offset:3px;color:#3c443f}
+.master-calendar .reset-filters:disabled{visibility:hidden;pointer-events:none}
+.filter-section{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.filter-section h3{grid-column:1/-1;font-size:14px;margin:0 0 2px;color:#535a56}
+.filter-section-brand>.filter-chip,.filter-section-units>.filter-chip:last-child{grid-column:1/-1}
+.master-calendar .filter-sheet-header{padding:20px;border-bottom:1px solid #e6e8e6}
+.master-calendar .filter-choices{display:flex;flex-direction:column;flex-wrap:nowrap;gap:20px;padding:20px;overflow-y:auto}
+.filter-section{flex-shrink:0}
+.master-calendar .filter-section .filter-chip{justify-content:flex-start;min-height:52px;padding:12px 14px;font-size:17px}
+.master-calendar .filter-section-brand .filter-chip{justify-content:center}
+@media(min-width:701px) and (max-width:1379px){
+ .master-calendar .mast{grid-template-columns:minmax(280px,1fr) auto;gap:16px 24px}
+ .master-calendar .calendar-period{grid-column:2;grid-row:1}
+ .master-calendar .search{grid-column:1/-1;grid-row:2;max-width:none}
+ .filter-primary{grid-template-columns:repeat(5,minmax(0,1fr))}
+ .master-calendar .unit-filters{grid-template-columns:104px minmax(0,1fr) 70px;padding:12px;gap:10px}
+ .master-calendar .unit-filters .filter-chip{font-size:17px;padding:10px}
+}
+@media(min-width:701px) and (max-width:950px){
+ .master-calendar main{padding:24px 24px 48px}
+ .master-calendar .mast h1,.master-calendar .mast-year{font-size:27px}
+ .master-calendar .mast-title{gap:8px}
+ .master-calendar .views button{padding:10px 14px}
+ .master-calendar .month-picker{width:130px}
+ .master-calendar .unit-filters{grid-template-columns:1fr auto;gap:10px}
+ .unit-choice-grid{grid-column:1/-1;grid-row:2}
+ .master-calendar .reset-filters{grid-column:2;grid-row:1;min-height:32px}
+ .filter-primary .filter-chip{font-size:17px;padding:10px}
+}
+@media(max-width:700px){
+ .master-calendar main{padding:18px 16px 100px}
+ .master-calendar .mast{display:flex;gap:14px;padding-bottom:16px}
+ .master-calendar .mast h1,.master-calendar .mast-year{font-size:25px}
+ .master-calendar .mast-title{justify-content:space-between;gap:6px}
+ .master-calendar .mast-updated{display:none}
+ .master-calendar .search{width:100%}
+ .master-calendar .calendar-period{display:contents}
+ .master-calendar .desktop-month-picker{display:none}
+ .master-calendar .views{position:fixed;bottom:max(14px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:10;background:#fff;border:1px solid #d9ddda;box-shadow:0 3px 18px #0002;border-radius:14px}
+ .master-calendar .views button{min-width:94px;min-height:44px;padding:10px 18px;border-radius:10px}
+ .master-calendar #filters{display:block}
+ .master-calendar .controls{margin-bottom:20px}
+ .filter-primary{grid-template-columns:76px minmax(100px,.9fr) minmax(0,1.1fr);gap:8px}
+ .master-calendar .desktop-filters,.master-calendar #filters>.unit-filters{display:none}
+ .master-calendar .all-filter{min-height:48px;font-size:20px;padding:10px 8px;border-radius:10px}
+ .master-calendar .phone-filter{display:flex;align-items:center;justify-content:center;gap:5px;min-height:48px;padding:10px 8px;border-radius:10px;border-color:#c9cdca;font-size:16px;white-space:nowrap}
+ .master-calendar .phone-filter span{font-size:12px;line-height:16px;padding:0 5px;background:#111}
+ .master-calendar .phone-month-picker{display:block;width:auto}
+ .master-calendar .month-picker select{min-height:48px;padding:10px 28px 10px 12px;font-size:16px;border-radius:10px;background-position:right 11px center}
+ .master-calendar .selected-filters{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+ .master-calendar .selected-filters:empty{display:none}
+ .master-calendar .selected-chip{min-height:44px;font-size:14px;border-radius:8px;display:inline-flex;align-items:center;gap:8px;text-align:left;padding:10px 12px}
+ .master-calendar .selected-chip>span{font-size:18px;line-height:1}
+ .master-calendar .filter-sheet{max-height:calc(100dvh - 16px);border-radius:20px 20px 0 0}
+ .master-calendar .filter-sheet-header{padding:16px 20px;flex-shrink:0}
+ .master-calendar .filter-sheet-header h2{font-size:24px}
+ .master-calendar .filter-choices{flex:0 1 auto;min-height:0;padding:16px 20px max(24px,env(safe-area-inset-bottom));gap:20px}
+ .master-calendar .filter-section .filter-chip{min-height:52px;font-size:16px;gap:8px;line-height:1.25;padding:12px}
+ .master-calendar .filter-section .filter-chip>span{flex-shrink:0}
+}
+@media(max-width:360px){
+ .master-calendar main{padding-left:12px;padding-right:12px}
+ .master-calendar .mast h1,.master-calendar .mast-year{font-size:22px}
+ .filter-primary{grid-template-columns:64px minmax(94px,.9fr) minmax(0,1.1fr);gap:6px}
+ .master-calendar .phone-filter{font-size:15px}
+ .master-calendar .month-picker select{font-size:15px;padding-left:10px}
+ .master-calendar .filter-sheet-header{padding:14px 16px}
+ .master-calendar .filter-choices{padding-left:16px;padding-right:16px}
+ .master-calendar .filter-section .filter-chip{font-size:15px;padding:11px 10px}
+}
+
+.filter-check{width:14px;height:14px;flex:0 0 14px;display:block}
+.year-date,.agenda-time,.day-heading,.month-number{font-variant-numeric:tabular-nums}
